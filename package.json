@@ -1,0 +1,27 @@
+{
+  "name": "ferias",
+  "version": "0.0.1",
+  "private": true,
+  "devDependencies": {
+    "react-scripts": "0.3.1"
+  },
+  "dependencies": {
+    "async": "^2.0.1",
+    "aws-sdk": "^2.5.5",
+    "material-ui": "^0.15.4",
+    "moment": "^2.14.1",
+    "node-uuid": "^1.4.7",
+    "react": "^15.3.1",
+    "react-dom": "^15.3.1",
+    "react-tap-event-plugin": "^1.0.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "./node_modules/react-scripts/config/eslint.js"
+  }
+}

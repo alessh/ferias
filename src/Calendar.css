@@ -1,0 +1,212 @@
+/*
+*,
+*:before,
+*:after {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+*/
+
+html {
+  padding-top: 0px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 0px;
+}
+
+body {
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif !important;
+  display: flex;
+  box-shadow: 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.hide {
+  display: none;
+}
+
+/********************* common *********************/
+.header {
+  width: 10%;
+  background-color: #009688;
+  color: white;
+  font-size: 1.4em;
+  pading: 10px;
+  margin: 0;
+  display: block;
+}
+
+.header:after div {
+  content: "";
+  width: 100%;
+  background-color: #009688;
+  color: white;
+  font-size: 1.4em;
+  pading: 10px;
+  margin: 0;
+  display: block;
+  /* Rotate div */
+  -ms-transform: rotate(-90deg); /* IE 9 */
+  -webkit-transform: rotate(-90deg); /* Chrome, Safari, Opera */
+  transform: rotate(-90deg);
+  align: right;
+}
+
+.container {
+  min-width: 400px;
+  width: 35%;
+  vertical-align: top;
+  display: inline-block;
+  margin: 5%;
+  min-height: 550px;
+}
+
+/********************* calendar *********************/
+.calendar {
+  min-width: 360px;  
+  /*border: 1px dashed red;*/
+}
+
+.today {  
+  text-align: center;
+  font-size: 2.3em;
+  font-weight: 400;
+  line-height: 20px; 
+  /*border: 1px dashed red;*/
+}
+
+.weekdays {
+  margin-top: 40px;
+  display: flex;
+}
+
+.weekday {  
+  width: 100%;
+  padding: 2%;
+  margin-bottom: 0%;
+  /*border: 1px solid red;*/
+}
+
+.weekday div {
+  float: left;
+  width: 100%;
+  padding-top: 10%;
+  line-height: 0.8em;
+  margin-top: -2.7em;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.87);
+  font-weight: bold;
+}
+
+.weekday p {
+  text-align: center;
+  font-size: 1.6em;
+}
+
+.days {
+  display: flex;
+  /*border: 1px solid blue;*/
+}
+
+.cell.day div {  
+  cursor: pointer;
+}
+
+.cell.weekend div {
+  color: gray;
+  cursor: pointer;
+}
+
+.gap {
+  width: 12.5%;
+}
+
+.cell {
+  width: 100%;
+  /*background-color: lightgray;*/
+}
+
+.cell:after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 0;
+  padding-bottom: 100%;  
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
+  
+  /*border: 1px dashed gray;*/
+}
+
+.weekend:hover:after,
+.day:hover:after {
+  background-color: #009688;
+  /*border: 5px solid #009688;*/
+}
+
+.selected:after {
+  background-color: #009688;
+}
+
+.warning:after {
+  background-color: #FF9800;
+  /*border: 3px solid #FF9800;*/
+}
+
+.critical:after {
+  background-color: #D32F2F;
+}
+
+.deadline:after {
+  background-color: #727272;
+}
+
+.selected div p,
+.warning div p,
+.critical div p,
+.deadline div p {
+  color: white;
+}
+
+.weekend:hover div p,
+.day:hover div p {
+  color: white;
+}
+
+.cell div {
+  float: left;
+  width: 100%;
+  padding-top: 50%;
+  line-height: 1.8em;
+  margin-top: -2.6em;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.87);
+  font-weight: bold;
+  /*border: 1px dashed blue;*/
+}
+
+.cell p {
+  text-align: center;
+  font-size: 1.8em;
+}
+
+/********************* list *********************/
+
+.list {
+  border: 1px solid #009688;
+  vertical-align: top;
+  min-width: 360px;  
+}
+
+.close {
+  cursor: pointer;
+  border-radius: 50%;
+  
+}
+
+.close:after {
+  content: "";
+  /*background-color: white;*/
+  border-radius: 50%;  
+}
