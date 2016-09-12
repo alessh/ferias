@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 
 import './PostList.css';
 
-import { FlatButton } from 'material-ui';
-
 import FormDialog from './Form';
 
 import uuid from 'node-uuid';
@@ -43,13 +41,14 @@ class PostIt extends Component {
 		super(props);
 
 		this.state = {
-			open: false
+			open: false,
+			degre: [2, -2, 2, -2, 2, -2, 2, -2, 2, 2, -2, -2, 2, -2, 2, -2].randomElement()
 		}
 
 		this.onOpen = this.onOpen.bind(this);
 		this.onClose = this.onClose.bind(this);
 	}
-
+	
 	onOpen() {
 		this.setState({open: true});
 	}
@@ -59,28 +58,14 @@ class PostIt extends Component {
 	}
 
 	render() {
-		const range = [2, -2, 2, -2, 2, -2, 2, -2, 2, 2, -2, -2, 2, -2, 2, -2];
-		const degre = range.randomElement();
  		const style = {
-			'WebkitTransform': 'rotate(' + degre + 'deg)',
-			'MozTransform': 'rotate(' + degre + 'deg)',
-			'OTransform': 'rotate(' + degre + 'deg)',
-			'MsTransform': 'rotate(' + degre + 'deg)',
-			'transform': 'rotate(' + degre + 'deg)'
+			'WebkitTransform': 'rotate(' + this.state.degre + 'deg)',
+			'MozTransform': 'rotate(' + this.state.degre + 'deg)',
+			'OTransform': 'rotate(' + this.state.degre + 'deg)',
+			'MsTransform': 'rotate(' + this.state.degre + 'deg)',
+			'transform': 'rotate(' + this.state.degre + 'deg)'
 		}
-		const actions = [
-		  <FlatButton
-		    label="Cancelar"
-		    primary={true}
-		    onTouchTap={this.onClose}
-		  />,
-		  <FlatButton
-		    label="Gravar"
-		    primary={true}
-		    keyboardFocused={true}
-		    onTouchTap={this.onClose}
-		  />,
-		];
+
 		return (
 			
 			<a href='#' onTouchTap={this.onOpen}>
@@ -90,15 +75,7 @@ class PostIt extends Component {
 						{this.props.date}
 						<cite className="author">{toTitleCase(this.props.author)}</cite>
 					</blockquote>
-					<FormDialog 
-						actions={actions}
-						modal={false}
-						open={this.state.open}
-						onRequestClose={this.onClose}
-						autoScrollBodyContent={true}
-						{...this.props} 
-					/>
-
+					<FormDialog {...this.props} open={this.state.open} onClose={this.onClose.bind(this)} />
 				</div>
 			</a>
 		);
@@ -113,10 +90,12 @@ class PostList extends Component {
 		}
 		return(
 			<div style={style}>
-				<PostIt id='530c5fb5-048c-4a3f-88cd-b57e70dbe6b7' class='hm.funcionario' color={'yellow'} date={'09/10/2016'} author={'MARIA PEREIRA DA SILVA'} {...this.props} />
+				<PostIt id='68e8fd98-e948-44bb-8933-a6394ecf99a8' class='hm.funcionario' color={'yellow'} date={'09/10/2016'} author={'MARIA PEREIRA DA SILVA'} {...this.props} />
 				<PostIt id='530c5fb5-048c-4a3f-88cd-b57e70dbe6b7' class='hm.funcionario' color={'red'} date={'10/10/2016'} author={'jose carlos pereira'} {...this.props} />
-				<PostIt id='530c5fb5-048c-4a3f-88cd-b57e70dbe6b7' class='hm.funcionario' color={'gray'} date={'12/10/2016'} author={'edmilson dos santos'} {...this.props} />
-				<PostIt id='530c5fb5-048c-4a3f-88cd-b57e70dbe6b7' class='hm.funcionario' color={'yellow'} date={'13/10/2016'} author={'marcelo parra'} {...this.props} />
+				<PostIt id='5c2d650b-575f-44c2-a6d2-a92f7f13d4a3' class='org.com.br.empresa' color={'gray'} date={'12/10/2016'} author={'edmilson dos santos'} {...this.props} />
+				<PostIt id='a5df6d82-d4ba-42fa-92b0-5b99a2d90808' class='org.com.br.empresa' color={'yellow'} date={'13/10/2016'} author={'marcelo parra'} {...this.props} />
+				<PostIt id='af7331bd-900d-497f-90fa-17e46081a6a3' class='org.com.br.empresa' color={'yellow'} date={'13/10/2016'} author={'marcelo parra'} {...this.props} />
+				{/*
 				<PostIt id='530c5fb5-048c-4a3f-88cd-b57e70dbe6b7' class='hm.funcionario' color={'yellow'} date={'09/10/2016'} author={'ana paula da silva'} {...this.props} />
 				<PostIt id='530c5fb5-048c-4a3f-88cd-b57e70dbe6b7' class='hm.funcionario' color={'gray'} date={'09/10/2016'} author={'vanessa forestiero'} {...this.props} />
 				<PostIt id='530c5fb5-048c-4a3f-88cd-b57e70dbe6b7' class='hm.funcionario' color={'red'} date={'09/10/2016'} author={'jose augusto dos santos'} {...this.props} />
@@ -127,6 +106,7 @@ class PostList extends Component {
 				<PostIt id='530c5fb5-048c-4a3f-88cd-b57e70dbe6b7' class='hm.funcionario' color={'red'} date={'09/10/2016'} author={'neuci bavato'} {...this.props} />
 				<PostIt id='530c5fb5-048c-4a3f-88cd-b57e70dbe6b7' class='hm.funcionario' color={'gray'} date={'09/10/2016'} author={'rita de cassia miranda'} {...this.props} />
 				<PostIt id='530c5fb5-048c-4a3f-88cd-b57e70dbe6b7' class='hm.funcionario' color={'red'} date={'09/10/2016'} author={'silvia toda tandelo'} {...this.props} />
+				*/}
 			</div>
 		);
 	}

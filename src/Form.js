@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import moment from 'moment';
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import { AppBar, TextField, DatePicker, CircularProgress, Dialog, IconMenu, IconButton, MenuItem } from 'material-ui';
+import { AppBar, TextField, DatePicker, CircularProgress, Dialog, IconMenu, IconButton, MenuItem, RaisedButton, FlatButton } from 'material-ui';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import NavigationClose from 'material-ui/svg-icons/navigation/close';
 
@@ -33,9 +33,11 @@ class Field extends Component {
 			previous: null,
 			progress: true
 		};
+
 		this.onChange = this.onChange.bind(this);
 		this.onSave = this.onSave.bind(this);
-		this.props.event.subscribe('save', this.onSave);
+
+		this.props.event.subscribe('onSave', this.onSave);
 
 	    this.params = {
 	        TableName: table,
@@ -77,17 +79,20 @@ class Field extends Component {
 	    dynamodb.query(this.params, result.bind(this));			
 	};	
 
-	/*componentDidMount() {
+	/*
+	componentDidMount() {
 	}
 
 	componentWillMount() {
 	}
 
 	componentWillUnmount() {
-	}*/
+	}
+	*/
 
 	onChange(event) {
 	    this.setState({value: event.target.value});
+	    this.props.event.publish('onChange', {cid: this.state.cid, value: event.target.value});
 	}
 
 	onSave(params) {
@@ -127,14 +132,10 @@ class Field extends Component {
 }
 
 class Code extends Field {
-	constructor(props) {
-		super(props);
+	componentWillMount() {
 		this.state.mask = this.props.mask || null;
 		this.state.format = this.props.format || null;
 		this.state.validation = this.props.validation || null;
-	}
-
-	componentWillMount() {
 		console.log('Component will mount: ' + this.state.id + ':' + this.state.type + this.state.class + ':'  + this.state.path );
 	}
 
@@ -159,14 +160,10 @@ class Code extends Field {
 }
 
 class Name extends Field {
-	constructor(props) {
-		super(props);
+	componentWillMount() {
 		this.state.loc = this.props.loc || null;
 		this.state.mask = this.props.mask || null;
 		this.state.lang = this.props.lang || null;
-	}
-
-	componentWillMount() {
 		console.log('Component will mount: ' + this.state.id + ':' + this.state.type);
 	}
 
@@ -191,14 +188,10 @@ class Name extends Field {
 }
 
 class Textbox extends Field {
-	constructor(props) {
-		super(props);
+	componentWillMount() {
 		this.state.loc = this.props.loc || null;
 		this.state.mask = this.props.mask || null;
 		this.state.lang = this.props.lang || null;
-	}	
-
-	componentWillMount() {
 		console.log('Component will mount: ' + this.state.id + ':' + this.state.type);
 	}
 
@@ -223,22 +216,19 @@ class Textbox extends Field {
 }
 
 class Datetime extends Field {
-	constructor(props) {
-		super(props);
+	componentWillMount() {
 		this.state.loc = this.props.loc || null;
 		this.state.mask = this.props.mask || null;
 		this.state.lang = this.props.lang || null;
 		this.state.value = this.state.value || moment.utc().format();
-	}	
+		console.log('Component will mount: ' + this.state.id + ':' + this.state.type);
+	}
+
 	onChangeDate = (event, date) => {
 	    this.setState({
 	      value: date.getTimezoneOffset() > 0 ? moment(date).subtract(date.getTimezoneOffset() / 60, 'h').toJSON() : moment(date).add(date.getTimezoneOffset() / 60, 'h').toJSON()
 	    });
 	};
-
-	componentWillMount() {
-		console.log('Component will mount: ' + this.state.id + ':' + this.state.type);
-	}
 
 	render() {
 		const utc = moment.utc(this.state.value);
@@ -278,7 +268,7 @@ class Form extends Component {
 	    		fields: []  // form fields
 	    	},
 	    	event: {
-		    	dispatch: function (event, data) {
+		    	publish: function (event, data) {
 			        if (!this._events[event]) return; // no one is listening to this event
 			        for (var i = 0; i < this._events[event].length; i++)
 			            this._events[event][i](data);
@@ -290,6 +280,11 @@ class Form extends Component {
 			    _events: {}
 			}
 	    }
+
+	    this.onChange = this.onChange.bind(this);
+	    this.onSave = this.onSave.bind(this);
+
+	    this.state.event.subscribe('onChange', this.onChange);
 	}
 
 	componentWillMount() {
@@ -330,7 +325,7 @@ class Form extends Component {
 						}
 	              	}
 
-				    if  (data.Items[0].fields) data.Items[0].fields.forEach(function(v, k, a) {
+				    if (data.Items[0].fields) data.Items[0].fields.forEach(function(v, k, a) {
 				      	console.log('Loading field ' + v.type + ':' + v.class + ':' + v.path)
 				      	switch(v.class) {
 				      		case 'id.gov.br.cei':
@@ -348,7 +343,7 @@ class Form extends Component {
 				      						hintText={v.label}
 				      						style={style.field}
 				      						{...v} 
-											/>
+										/>
 				          			</div>
 				          		);
 				      			break;
@@ -407,7 +402,6 @@ class Form extends Component {
 				      	}
 			      	})	
 	
-
 	            	context.setState({
 	            		label: data.Items[0].label || '',
 	            		fields: data.Items[0].fields || [],
@@ -416,11 +410,19 @@ class Form extends Component {
 	            		}
 	            	});
 	            }
-
 	        }
 	    }
 
 	    dynamodb.query(this.params, result.bind(this));
+	}
+
+	onChange(data) {
+		this.state.fields.forEach(function(v, k, a) {
+			if (v.cid === data.cid) {
+				v.value = data.value;
+				return;
+			}
+		});
 	}
 
 	onSave() {
@@ -429,7 +431,7 @@ class Form extends Component {
 			return;
 		}
 
-		this.state.event.dispatch('save', null);
+		this.state.event.publish('onSave', null);
 
 		var params = {
 	        'TableName': table,
@@ -450,9 +452,10 @@ class Form extends Component {
 	    	if (err) {
 	    		console.log(this.state.id + ':' + this.state.type + ':' + this.state.class + ' erro on create/update.');
 	    	} else {
-	    		this.setState({_previous: this.state.value});
+	    		//this.setState({previous: this.state.value});
 	    		console.log(this.state.id + ':' + this.state.type + ':' + this.state.class + ' create/update OK.');
 	    	}
+	    	this.props.onClose();
 	    }
 
 	    dynamodb.put(params, result.bind(this));		
@@ -482,14 +485,14 @@ class Form extends Component {
 					        targetOrigin={{horizontal: 'right', vertical: 'top'}}
 					        anchorOrigin={{horizontal: 'right', vertical: 'top'}}
 					      >
-					        <MenuItem primaryText="Refresh" />
-					        <MenuItem primaryText="Help" />
-					        <MenuItem primaryText="Sign out" />
+					        <MenuItem primaryText="Adicionar" />
+					        <MenuItem primaryText="Fechar" />
+					        <MenuItem primaryText="Ajuda" />
 					      </IconMenu>
 					    }
 			    	/>
 			    	{this.state.form.fields}
-					{/*<RaisedButton label={'Gravar'} primary={true} onClick={this.onSave.bind(this)} style={style.submit} />*/}
+					<RaisedButton label={'Gravar'} primary={true} onClick={this.onSave.bind(this)} style={style.submit} />
 				</div>
 		    </MuiThemeProvider>
 		);
@@ -497,19 +500,65 @@ class Form extends Component {
 }
 
 class FormDialog extends Component {
-	render() {
+	constructor(props) {
+		super(props);
 
+		this.state = {
+			//open: this.props.open,
+			degre: [2, -2, 2, -2, 2, -2, 2, -2, 2, 2, -2, -2, 2, -2, 2, -2].randomElement(),
+			onSave: null
+		}
+
+		this.onOpen = this.onOpen.bind(this);
+		this.onClose = this.onClose.bind(this);
+		this.onSave = this.onSave.bind(this);
+	}
+
+	onOpen() {
+		this.setState({open: true});
+	}
+
+	onClose() {
+		//this.setState({open: false});
+		this.props.onClose();
+	}
+
+	onSave() {
+		//this.setState({open: false});
+		this.props.onClose();
+	}
+
+	render() {
+		const actions = [
+		  <FlatButton
+		    label="Cancelar"
+		    primary={true}
+		    onTouchTap={this.onClose}
+		  />,
+		  <FlatButton
+		    label="Gravar"
+		    primary={true}
+		    keyboardFocused={true}
+		    onTouchTap={this.onSave}
+		  />,
+		];
 		return (
 			<MuiThemeProvider>
 			<div>
-				<Dialog
-					{...this.props}					
+				<Dialog	
+					actions={actions}
+					modal={false}
+					open={this.props.open}
+					onRequestClose={this.props.onClose}
+					autoScrollBodyContent={true}
+					{...this.props} 
 				>
-					<Form id={this.props.id} class={this.props.class} />
+					<Form id={this.props.id} class={this.props.class} {...this.props} onClose={this.onSave.bind(this)} onSave={this.state.onSave} />
 				</Dialog>
 			</div>
 			</MuiThemeProvider>
 		);
 	}	
 }
+
 export default FormDialog;
