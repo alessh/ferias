@@ -1,8 +1,16 @@
 import React, { Component } from 'react';
-import injectTapEventPlugin from 'react-tap-event-plugin';
 
+// material-ui
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import injectTapEventPlugin from 'react-tap-event-plugin';
+import { AppBar, LinearProgress, FloatingActionButton } from 'material-ui';
+import ContentAdd from 'material-ui/svg-icons/content/add';
+import {cyan500} from 'material-ui/styles/colors';
+
+// app
 import Calendar from './Calendar';
-import PostList from './PostList'
+import PostList from './PostList';
 import './App.css';
 
 // Needed for onTouchTap
@@ -12,14 +20,16 @@ injectTapEventPlugin();
 import 'aws-sdk/dist/aws-sdk';
 const aws = window.AWS;
 
-const style = {
-	display: 'inline-block',
-}
-const postit = {
-	display: 'inline-block',
-	width: '50%',
-	padding: '20px'
-}
+// This replaces the textColor value on the palette
+// and then update the keys for each component that depends on it.
+// More on Colors: http://www.material-ui.com/#/customization/colors
+const muiTheme = getMuiTheme({
+	/*floatingActionButton: {
+		color: 'lightgray',
+		iconColor: 'rgb(0, 188, 212)'
+	}*/
+});
+
 class App extends Component {
 	constructor(props) {
 		super(props);
@@ -27,11 +37,13 @@ class App extends Component {
 		aws.config.update({accessKeyId: 'AKIAJROLVHLQQHOE72HA', secretAccessKey: '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','region': 'sa-east-1'});
 
 		this.state = {
-			open: true
+			open: true,
+			progress: true
 		}
 
 		this.onOpen = this.onOpen.bind(this);
 		this.onClose = this.onClose.bind(this);
+
 	}
 
 	onOpen() {
@@ -44,19 +56,39 @@ class App extends Component {
 
 	render() {
 		const dt1 = this.props.date.clone().date(1);
-		const dt2 = dt1.clone().add(1, 'month');
 
+		const style = {
+			display: 'inline-block',
+		}
+		const postit = {
+			display: 'inline-block',
+			width: '50%',
+			padding: '20px'
+		}
+		const progress = {
+			marginTop: '3px',
+			visibility: this.state.progress ? 'visible' : 'hidden'
+		}
 		return (
+			<MuiThemeProvider muiTheme={muiTheme}>
 			<div>
-				<div className="header" />
+				<AppBar title="Controle de Férias" iconClassNameRight="muidocs-icon-navigation-expand-more" />
+				<div style={{right: '20px', marginRight: 20, top: 42, position: 'absolute', zIndex: 2000}}> <FloatingActionButton >
+			      <ContentAdd />
+			    </FloatingActionButton></div>
+				<LinearProgress mode="indeterminate" style={progress} />
 
-				<div className='container' style={style}><Calendar today={dt1} /></div>
+				<div className='container' style={style}><Calendar today={dt1.clone()} /></div>
 				
 				<div style={postit}><PostList /></div>
 
-				<div className='container' style={style}><Calendar today={dt2} /></div>
+				<div className='container' style={style}><Calendar today={dt1.add(1, 'month').clone()} /></div>
 
 				<div style={postit}><PostList title="Funcionário" /></div>
+
+				<div className='container' style={style}><Calendar today={dt1.add(1, 'month').clone()} /></div>
+				
+				<div style={postit}><PostList /></div>
 
 				{/*<RaisedButton label="Formulário" onTouchTap={this.onOpen} />*/}
 
@@ -81,7 +113,8 @@ class App extends Component {
 					
 				</div>*/}
 
-	        </div>			
+	        </div>	
+	        </MuiThemeProvider>		
 		);
 	}
 }

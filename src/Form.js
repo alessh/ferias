@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import moment from 'moment';
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import { AppBar, TextField, DatePicker, CircularProgress, Dialog } from 'material-ui';
+import { AppBar, TextField, DatePicker, CircularProgress, Dialog, IconMenu, IconButton, MenuItem } from 'material-ui';
+import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
+import NavigationClose from 'material-ui/svg-icons/navigation/close';
 
 import uuid from 'node-uuid';
 //import async from 'async';
@@ -422,12 +424,12 @@ class Form extends Component {
 	}
 
 	onSave() {
-		this.state.event.dispatch('save', null);
-
 		if (this.state.progress) {
 			console.log(this.state.id + ':' + this.state.type + ':' + this.state.class + ': request in progress.');
 			return;
 		}
+
+		this.state.event.dispatch('save', null);
 
 		var params = {
 	        'TableName': table,
@@ -470,7 +472,22 @@ class Form extends Component {
 		return (
 			<MuiThemeProvider>
 				<div style={this.props.style || style.form}>
-			    	<AppBar title={this.state.label} />
+			    	<AppBar 
+			    		title={this.state.label} 
+			    		iconElementRight={
+					      <IconMenu
+					        iconButtonElement={
+					          <IconButton><MoreVertIcon /></IconButton>
+					        }
+					        targetOrigin={{horizontal: 'right', vertical: 'top'}}
+					        anchorOrigin={{horizontal: 'right', vertical: 'top'}}
+					      >
+					        <MenuItem primaryText="Refresh" />
+					        <MenuItem primaryText="Help" />
+					        <MenuItem primaryText="Sign out" />
+					      </IconMenu>
+					    }
+			    	/>
 			    	{this.state.form.fields}
 					{/*<RaisedButton label={'Gravar'} primary={true} onClick={this.onSave.bind(this)} style={style.submit} />*/}
 				</div>
