@@ -1,13 +1,11 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 
-import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
-import { AppBar, TextField, RaisedButton, DatePicker, CircularProgress } from 'material-ui';
+import { AppBar, TextField, DatePicker, CircularProgress, Dialog } from 'material-ui';
 
 import uuid from 'node-uuid';
-import async from 'async';
+//import async from 'async';
 import 'aws-sdk/dist/aws-sdk';
 const aws = window.AWS;
 
@@ -16,17 +14,6 @@ const table = 'altamira';
 aws.config.update({accessKeyId: 'AKIAJROLVHLQQHOE72HA', secretAccessKey: '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','region': 'sa-east-1'});
 
 const dynamodb = new aws.DynamoDB.DocumentClient();
-
-const styles = {
-	submit: {
-		align: 'center',
-		margin: 12
-	},
-	field: {
-		marginLeft: '10px',
-		marginRight: '10px'
-	}
-};
 
 class Field extends Component {
 	constructor(props) {
@@ -252,7 +239,6 @@ class Datetime extends Field {
 	}
 
 	render() {
-		const fields = [];
 		const utc = moment.utc(this.state.value);
 		const date = new Date(utc.year(), utc.month(), utc.date(), utc.toDate().getTimezoneOffset() / 60, 0, 0);
 		const progress = {
@@ -335,7 +321,14 @@ class Form extends Component {
 
 	              	var fields = [];
 
-				    data.Items[0].fields && data.Items[0].fields.forEach(function(v, k, a) {
+	              	const style = {
+	              		field: {
+							marginLeft: '10px',
+							marginRight: '10px'
+						}
+	              	}
+
+				    if  (data.Items[0].fields) data.Items[0].fields.forEach(function(v, k, a) {
 				      	console.log('Loading field ' + v.type + ':' + v.class + ':' + v.path)
 				      	switch(v.class) {
 				      		case 'id.gov.br.cei':
@@ -343,7 +336,7 @@ class Form extends Component {
 				      		case 'id.gov.br.ie':
 				      		case 'id.cod.codigo':
 				      			fields.push(
-				      				<div key={uuid.v4()} style={styles.field}>
+				      				<div key={uuid.v4()} style={style.field}>
 				      					<Code 
 				      						id={context.state.id} 
 				      						key={uuid.v4()} 
@@ -351,7 +344,7 @@ class Form extends Component {
 				      						floatingLabelText={v.label}
 				  							floatingLabelFixed={true}
 				      						hintText={v.label}
-				      						style={styles.field}
+				      						style={style.field}
 				      						{...v} 
 											/>
 				          			</div>
@@ -364,7 +357,7 @@ class Form extends Component {
 				      		case 'cla.gov.br.cnae':
 				      		case 'cla.tipo.empresa.porte':
 				      			fields.push(
-				      				<div key={uuid.v4()} style={styles.field}>
+				      				<div key={uuid.v4()} style={style.field}>
 				      					<Name 
 				      						id={context.state.id} 
 				      						key={uuid.v4()} 
@@ -372,7 +365,7 @@ class Form extends Component {
 				      						floatingLabelText={v.label}
 				  							floatingLabelFixed={true}
 				      						hintText={v.label}
-				      						style={styles.field}
+				      						style={style.field}
 				      						{...v} 
 				      					/>
 				      				</div>
@@ -380,7 +373,7 @@ class Form extends Component {
 				      			break;
 				      		case 'tm.dt.admissao':
 				      			fields.push(
-				      				<div key={uuid.v4()} style={styles.field}>
+				      				<div key={uuid.v4()} style={style.field}>
 				      					<Datetime 
 				      						id={context.state.id} 
 				      						key={uuid.v4()} 
@@ -388,7 +381,7 @@ class Form extends Component {
 				      						floatingLabelText={v.label}
 				  							floatingLabelFixed={true}
 				      						hintText={v.label}
-				      						style={styles.field}
+				      						style={style.field}
 				      						{...v} 
 				      					/>
 				      				</div>
@@ -396,7 +389,7 @@ class Form extends Component {
 				      			break;	              			
 				      		default:
 				      			fields.push(
-				      				<div key={uuid.v4()} style={styles.field}>
+				      				<div key={uuid.v4()} style={style.field}>
 				      					<Textbox 
 				      						id={context.state.id} 
 				      						key={uuid.v4()} 
@@ -404,7 +397,7 @@ class Form extends Component {
 				      						floatingLabelText={v.label}
 				  							floatingLabelFixed={true}
 				      						hintText={v.label}
-				      						style={styles.field}
+				      						style={style.field}
 				      						{...v} 
 				      					/>
 				      				</div>
@@ -464,16 +457,42 @@ class Form extends Component {
 	}
 
 	render() {
+		const style = {
+			form: {
+				height: '500px',
+				padding: '25px'
+			},
+			submit: {
+				align: 'center',
+				margin: 12
+			}
+		}
 		return (
 			<MuiThemeProvider>
-				<div style={this.props.style || styles.form}>
+				<div style={this.props.style || style.form}>
 			    	<AppBar title={this.state.label} />
 			    	{this.state.form.fields}
-					<RaisedButton label={'Gravar'} primary={true} onClick={this.onSave.bind(this)} style={styles.submit} />
+					{/*<RaisedButton label={'Gravar'} primary={true} onClick={this.onSave.bind(this)} style={style.submit} />*/}
 				</div>
 		    </MuiThemeProvider>
 		);
 	}
 }
 
-export default Form;
+class FormDialog extends Component {
+	render() {
+
+		return (
+			<MuiThemeProvider>
+			<div>
+				<Dialog
+					{...this.props}					
+				>
+					<Form id={this.props.id} class={this.props.class} />
+				</Dialog>
+			</div>
+			</MuiThemeProvider>
+		);
+	}	
+}
+export default FormDialog;

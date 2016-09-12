@@ -150,7 +150,8 @@ body {
 }
 
 .warning:after {
-  background-color: #FF9800;
+  background-color: #eae672; /*#FF9800;*/
+  color: black;
   /*border: 3px solid #FF9800;*/
 }
 
@@ -159,13 +160,15 @@ body {
 }
 
 .deadline:after {
-  background-color: #727272;
+  background-color: lightgray; /*#727272;*/
+  color: black;
 }
 
 .selected div p,
-.warning div p,
-.critical div p,
-.deadline div p {
+/*.warning div p,*/
+.critical div p
+/*.deadline div p */
+{
   color: white;
 }
 
