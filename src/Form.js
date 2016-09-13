@@ -160,12 +160,12 @@ class Code extends Field {
 }
 
 class Name extends Field {
-	componentWillMount() {
+	/*componentWillMount() {
 		this.state.loc = this.props.loc || null;
 		this.state.mask = this.props.mask || null;
 		this.state.lang = this.props.lang || null;
 		console.log('Component will mount: ' + this.state.id + ':' + this.state.type);
-	}
+	}*/
 
 	render() {
 		const progress = {
@@ -188,12 +188,12 @@ class Name extends Field {
 }
 
 class Textbox extends Field {
-	componentWillMount() {
+	/*componentWillMount() {
 		this.state.loc = this.props.loc || null;
 		this.state.mask = this.props.mask || null;
 		this.state.lang = this.props.lang || null;
 		console.log('Component will mount: ' + this.state.id + ':' + this.state.type);
-	}
+	}*/
 
 	render() {
 		const progress = {
@@ -216,18 +216,25 @@ class Textbox extends Field {
 }
 
 class Datetime extends Field {
-	componentWillMount() {
+	constructor(props) {
+		super(props);
+
+		this.state.value = this.props.value === undefined || this.props.value === null || this.props.value.trim() === '' ? moment.utc().format() : this.props.value;
+
+	}
+	/*componentWillMount() {
 		this.state.loc = this.props.loc || null;
 		this.state.mask = this.props.mask || null;
 		this.state.lang = this.props.lang || null;
 		this.state.value = this.state.value || moment.utc().format();
 		console.log('Component will mount: ' + this.state.id + ':' + this.state.type);
-	}
+	}*/
 
 	onChangeDate = (event, date) => {
 	    this.setState({
 	      value: date.getTimezoneOffset() > 0 ? moment(date).subtract(date.getTimezoneOffset() / 60, 'h').toJSON() : moment(date).add(date.getTimezoneOffset() / 60, 'h').toJSON()
 	    });
+	    this.props.event.publish('onChange', {cid: this.state.cid, value: date.getTimezoneOffset() > 0 ? moment(date).subtract(date.getTimezoneOffset() / 60, 'h').toJSON() : moment(date).add(date.getTimezoneOffset() / 60, 'h').toJSON()});
 	};
 
 	render() {
@@ -314,7 +321,7 @@ class Form extends Component {
 	            console.log("Query for Form Definition succeeded.");
 	            
 	            if (data.Count > 0) {
-	              	console.log('Found Form Definition'); 
+	              	console.log('Found Form Definition: ' + this.state.id + ':' + this.state.cid); 
 
 	              	var fields = [];
 
@@ -553,7 +560,7 @@ class FormDialog extends Component {
 					autoScrollBodyContent={true}
 					{...this.props} 
 				>
-					<Form id={this.props.id} class={this.props.class} {...this.props} onClose={this.onSave.bind(this)} onSave={this.state.onSave} />
+					<Form {...this.props} onClose={this.onSave.bind(this)} onSave={this.state.onSave} />
 				</Dialog>
 			</div>
 			</MuiThemeProvider>

@@ -46,7 +46,7 @@ class WeekDays extends Component {
 
 class Day extends Component {
   render() {
-    console.log('Day:' + JSON.stringify(this.props));
+    //console.log('Day:' + JSON.stringify(this.props));
 
     var classNames = 'cell ';
 
@@ -123,11 +123,11 @@ class Body extends Component {
     }
   }
   render() {
-    console.log('Props date: ' + this.props.date.format('DD MMMM YYYY'))
+    console.log('Props date: ' + this.state.date.format('DD MMMM YYYY'))
     const body = [];
     for (var week = 0; week < 6; week++) {
-      console.log('Count: ' + week + ', State month:' + this.state.date.format('YYYY-MM-DD'))
-      body.push(<Days {...this.state} month={this.props.date.month()} key={'week-' + week} />);
+      //console.log('Count: ' + week + ', State month:' + this.state.date.format('YYYY-MM-DD'))
+      body.push(<Days {...this.state} month={this.state.date.month()} key={'week-' + week} />);
     }
     return (
       <div className='body'>

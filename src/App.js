@@ -11,6 +11,7 @@ import {cyan500} from 'material-ui/styles/colors';
 // app
 import Calendar from './Calendar';
 import PostList from './PostList';
+import FormDialog from './Form';
 import './App.css';
 
 // Needed for onTouchTap
@@ -37,8 +38,9 @@ class App extends Component {
 		aws.config.update({accessKeyId: 'AKIAJROLVHLQQHOE72HA', secretAccessKey: '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','region': 'sa-east-1'});
 
 		this.state = {
-			open: true,
-			progress: true
+			open: false,
+			progress: true,
+			date: this.props.date.clone().date(1)
 		}
 
 		this.onOpen = this.onOpen.bind(this);
@@ -55,7 +57,7 @@ class App extends Component {
 	}
 
 	render() {
-		const dt1 = this.props.date.clone().date(1);
+		const dt1 = this.state.date.clone();
 
 		const style = {
 			display: 'inline-block',
@@ -73,9 +75,14 @@ class App extends Component {
 			<MuiThemeProvider muiTheme={muiTheme}>
 			<div>
 				<AppBar title="Controle de Férias" iconClassNameRight="muidocs-icon-navigation-expand-more" />
-				<div style={{right: '20px', marginRight: 20, top: 42, position: 'absolute', zIndex: 2000}}> <FloatingActionButton >
-			      <ContentAdd />
-			    </FloatingActionButton></div>
+				<div style={{right: '20px', marginRight: 20, top: 42, position: 'absolute', zIndex: 1200}}>
+					<FloatingActionButton onTouchTap={this.onOpen} >
+			      		<ContentAdd />
+			    	</FloatingActionButton>
+			    </div>
+
+			    <FormDialog class='hm.funcionario' open={this.state.open} onClose={this.onClose.bind(this)} />
+
 				<LinearProgress mode="indeterminate" style={progress} />
 
 				<div className='container' style={style}><Calendar today={dt1.clone()} /></div>
