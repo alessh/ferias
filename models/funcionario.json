@@ -3,41 +3,46 @@
     "label": "Funcionário",
     "type": "r",
     "class": "hm.funcionario",
-    "cid": "r:r.hm.funcionario",
-    "fields": [{
-        "class": "id.cod.matricula",
-        "label": "Matricula",
-        "lang": "pt-BR",
-        "mask": "00000",
-        "required": true,
-        "type": "a",
-        "path": "matricula",
-        "cid": "a:id.cod.matricula:matricula"
-    }, {
-        "class": "id.gov.br.pis",
-        "label": "PIS",
-        "lang": "pt-BR",
-        "loc": "geo.la.brz",
-        "mask": "000.000.000.000",
-        "required": true,
-        "type": "a",
-        "path": "pis",
-        "cid": "a:id.gov.br.pis:pis"
-    }, {
-        "class": "id.nom.nome",
-        "label": "Nome",
-        "lang": "pt-BR",
-        "required": true,
-        "type": "a",
-        "path": "nome",
-        "cid": "a:id.nom.nome:nome"
-    }, {
-        "class": "tm.dt.admissao",
-        "label": "Data de admissão",
-        "lang": "pt-BR",
-        "required": true,
-        "type": "a",
-        "path": "admissao",
-        "cid": "a:tm.dt.admissao:admissao"
-    }]
+    "cid": "r:hm.funcionario",
+    "fields": {
+        "matricula": {
+            "class": "id.cod.matricula",
+            "label": "Matricula",
+            "lang": "pt-BR",
+            "mask": "00000",
+            "required": true,
+            "type": "a",
+            "path": "matricula",
+            "cid": "a:id.cod.matricula:matricula"
+        }, 
+        "pis": {
+            "class": "id.gov.br.pis",
+            "label": "PIS",
+            "lang": "pt-BR",
+            "loc": "geo.la.brz",
+            "mask": "000.000.000.000",
+            "required": true,
+            "type": "a",
+            "path": "pis",
+            "cid": "a:id.gov.br.pis:pis"
+        }, 
+        "nome": {
+            "class": "id.nom.nome",
+            "label": "Nome",
+            "lang": "pt-BR",
+            "required": true,
+            "type": "a",
+            "path": "nome",
+            "cid": "a:id.nom.nome:nome"
+        }, 
+        "admissao": {
+            "class": "tm.dt.admissao",
+            "label": "Data de admissão",
+            "lang": "pt-BR",
+            "required": true,
+            "type": "a",
+            "path": "admissao",
+            "cid": "a:tm.dt.admissao:admissao"
+        }
+    }
 }

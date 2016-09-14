@@ -1,0 +1,37 @@
+{
+    "id": "00000000-0000-0000-0000-000000000000",
+    "label": "Histórico de Férias",
+    "type": "r",
+    "class": "hm.funcionario.ferias.historico",
+    "cid": "r:hm.funcionario.ferias.historico",
+    "fields": {
+        "inicial": {
+            "class": "tm.dt.inicial",
+            "label": "Data Inicial",
+            "lang": "pt-BR",
+            "required": true,
+            "type": "a",
+            "path": "inicial",
+            "cid": "a:tm.dt.inicial:inicial"
+        }, 
+        "final": {
+            "class": "tm.dt.final",
+            "label": "Data Final",
+            "lang": "pt-BR",
+            "required": true,
+            "type": "a",
+            "path": "final",
+            "cid": "a:tm.dt.final:final"
+        }, 
+        "historico": {
+            "class": "char.text",
+            "label": "Histórico",
+            "lang": "pt-BR",
+            "required": true,
+            "type": "a",
+            "path": "historico",
+            "cid": "a:char.text:historico",
+            "value": null
+        }
+    }
+}

@@ -1,13 +1,18 @@
 import React, { Component } from 'react';
-import moment from 'moment';
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import { AppBar, TextField, DatePicker, CircularProgress, Dialog, IconMenu, IconButton, MenuItem, RaisedButton, FlatButton } from 'material-ui';
+import { AppBar, IconMenu, IconButton, MenuItem, RaisedButton } from 'material-ui';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
-import NavigationClose from 'material-ui/svg-icons/navigation/close';
 
 import uuid from 'node-uuid';
-//import async from 'async';
+
+import Name from './Name';
+import Code from './Code';
+import Textbox from './Textbox';
+import Datetime from './Datetime';
+import Select from './Select';
+import Toggle from './Toggle';
+
 import 'aws-sdk/dist/aws-sdk';
 const aws = window.AWS;
 
@@ -17,250 +22,7 @@ aws.config.update({accessKeyId: 'AKIAJROLVHLQQHOE72HA', secretAccessKey: 'th/N/a
 
 const dynamodb = new aws.DynamoDB.DocumentClient();
 
-class Field extends Component {
-	constructor(props) {
-		super(props);
-		const generated_path = uuid.v4();
-		this.state = {
-			id: this.props.id,
-			cid: this.props.cid || (this.props.type || 'a') + ':' + this.props.class + ':' + (this.props.path || generated_path),
-			type: this.props.type || 'a',
-			class: this.props.class,
-			path: this.props.path || generated_path,
-			label: this.props.label || '????',
-			value: this.props.value || '',
-			required: this.props.required || false,
-			previous: null,
-			progress: true
-		};
-
-		this.onChange = this.onChange.bind(this);
-		this.onSave = this.onSave.bind(this);
-
-		this.props.event.subscribe('onSave', this.onSave);
-
-	    this.params = {
-	        TableName: table,
-	        KeyConditionExpression: "#k = :k and #s = :s",   
-	        ExpressionAttributeNames: {
-	        	"#k": "id",
-	            "#s": "cid"
-	        },
-	        ExpressionAttributeValues: { 
-	        	":k": this.state.id,
-	            ":s": this.state.cid
-	        },
-	        Limit: 1
-	    }
-
-	    var result = function(err, data) {
-	    	var context = this;
-	        //console.log(data)
-	        
-	        if (err) {
-	            console.log("Unable to find field value. Error:", JSON.stringify(err, null, 2));
-	            context.setState({progress: false});
-	        } else {
-	            console.log("Query succeeded.");
-	            
-	            if (data.Count > 0) {
-	              	console.log(JSON.stringify(data.Items))
-	              	data.Items[0].previous = data.Items[0].value;
-	              	data.Items[0].progress = false;
-	              	context.setState(data.Items[0]);
-	            	console.log('Field loaded.'); 
-	            } else {
-	            	context.setState({progress: false});
-	            }
-
-	        }
-	    }
-
-	    dynamodb.query(this.params, result.bind(this));			
-	};	
-
-	/*
-	componentDidMount() {
-	}
-
-	componentWillMount() {
-	}
-
-	componentWillUnmount() {
-	}
-	*/
-
-	onChange(event) {
-	    this.setState({value: event.target.value});
-	    this.props.event.publish('onChange', {cid: this.state.cid, value: event.target.value});
-	}
-
-	onSave(params) {
-		if (this.state.value === this.state.previous || 
-			this.state.value === undefined) {
-			console.log(this.state.id + ':' + this.state.type + ':' + this.state.class + ':' + this.state.path + ' no changes to save.');
-			return;
-		}
-
-		if (this.state.progress) {
-			console.log(this.state.id + ':' + this.state.type + ':' + this.state.class + ':' + this.state.path + ' request in progress.');
-			return;
-		}
-
-		var state = this.state;
-		delete state.progress;
-
-		params = {
-	        'TableName': table,
-	        'Item': this.state
-	    }
-
-	    this.setState({progress: true});
-
-	    var result = function(err, data) {
-	    	if (err) {
-	    		console.log(this.state.id + ':' + this.state.type + ':' + this.state.class + ':' + this.state.path + ' erro on create/update field.');
-	    		this.setState({progress: false});
-	    	} else {
-	    		console.log(this.state.id + ':' + this.state.type + ':' + this.state.class + ':' + this.state.path + ' create/update field OK.');
-	    		this.setState({previous: this.state.value, progress: false});
-	    	}
-	    }
-
-	    dynamodb.put(params, result.bind(this));
-	}
-}
-
-class Code extends Field {
-	componentWillMount() {
-		this.state.mask = this.props.mask || null;
-		this.state.format = this.props.format || null;
-		this.state.validation = this.props.validation || null;
-		console.log('Component will mount: ' + this.state.id + ':' + this.state.type + this.state.class + ':'  + this.state.path );
-	}
-
-	render() {
-		const progress = {
-			visibility: this.state.progress ? 'visible' : 'hidden', position: 'absolute'
-		}
-		return (
-			<div>
-				<TextField 
-					id={uuid.v4()} 
-					onChange={this.onChange} 
-					value={this.state.value} 
-					fullWidth={true} 
-					floatingLabelText={this.state.label}
-					floatingLabelFixed={true}
-				/>
-				<CircularProgress size={0.5} style={progress} />
-			</div>
-		);
-	}
-}
-
-class Name extends Field {
-	/*componentWillMount() {
-		this.state.loc = this.props.loc || null;
-		this.state.mask = this.props.mask || null;
-		this.state.lang = this.props.lang || null;
-		console.log('Component will mount: ' + this.state.id + ':' + this.state.type);
-	}*/
-
-	render() {
-		const progress = {
-			visibility: this.state.progress ? 'visible' : 'hidden', position: 'absolute'
-		}
-		return (
-			<div>
-				<TextField 
-					id={uuid.v4()} 
-					onChange={this.onChange} 
-					value={this.state.value} 
-					fullWidth={true} 
-					floatingLabelText={this.state.label}
-					floatingLabelFixed={true}
-				/>
-				<CircularProgress size={0.5} style={progress} />
-			</div>
-		);
-	}
-}
-
-class Textbox extends Field {
-	/*componentWillMount() {
-		this.state.loc = this.props.loc || null;
-		this.state.mask = this.props.mask || null;
-		this.state.lang = this.props.lang || null;
-		console.log('Component will mount: ' + this.state.id + ':' + this.state.type);
-	}*/
-
-	render() {
-		const progress = {
-			visibility: this.state.progress ? 'visible' : 'hidden', position: 'absolute'
-		}
-		return (
-			<div>
-				<TextField 
-					id={uuid.v4()} 
-					onChange={this.onChange} 
-					value={this.state.value} 
-					fullWidth={true} 
-					floatingLabelText={this.state.label}
-					floatingLabelFixed={true}
-				/>
-				<CircularProgress size={0.5} style={progress} />
-			</div>
-		);
-	}
-}
-
-class Datetime extends Field {
-	constructor(props) {
-		super(props);
-
-		this.state.value = this.props.value === undefined || this.props.value === null || this.props.value.trim() === '' ? moment.utc().format() : this.props.value;
-
-	}
-	/*componentWillMount() {
-		this.state.loc = this.props.loc || null;
-		this.state.mask = this.props.mask || null;
-		this.state.lang = this.props.lang || null;
-		this.state.value = this.state.value || moment.utc().format();
-		console.log('Component will mount: ' + this.state.id + ':' + this.state.type);
-	}*/
-
-	onChangeDate = (event, date) => {
-	    this.setState({
-	      value: date.getTimezoneOffset() > 0 ? moment(date).subtract(date.getTimezoneOffset() / 60, 'h').toJSON() : moment(date).add(date.getTimezoneOffset() / 60, 'h').toJSON()
-	    });
-	    this.props.event.publish('onChange', {cid: this.state.cid, value: date.getTimezoneOffset() > 0 ? moment(date).subtract(date.getTimezoneOffset() / 60, 'h').toJSON() : moment(date).add(date.getTimezoneOffset() / 60, 'h').toJSON()});
-	};
-
-	render() {
-		const utc = moment.utc(this.state.value);
-		const date = new Date(utc.year(), utc.month(), utc.date(), utc.toDate().getTimezoneOffset() / 60, 0, 0);
-		const progress = {
-			visibility: this.state.progress ? 'visible' : 'hidden', position: 'absolute'
-		}
-		return (
-			<div>
-				<DatePicker 
-					id={uuid.v4()} 
-					onChange={this.onChangeDate} 
-					value={date} 
-					formatDate={this.formatDate} 
-					fullWidth={true}
-					floatingLabelText={this.state.label}
-					floatingLabelFixed={true}
-				/>
-				<CircularProgress size={0.5} style={progress} />
-			</div>
-		);
-	}
-}
-
-class Form extends Component {
+export default class Form extends Component {
 	constructor(props) {
 		super(props);
 
@@ -318,7 +80,7 @@ class Form extends Component {
 	        if (err) {
 	            console.log("Unable to query for Form Definition. Error:", JSON.stringify(err, null, 2));
 	        } else {
-	            console.log("Query for Form Definition succeeded.");
+	            //console.log("Query for Form Definition succeeded.");
 	            
 	            if (data.Count > 0) {
 	              	console.log('Found Form Definition: ' + this.state.id + ':' + this.state.cid); 
@@ -332,9 +94,26 @@ class Form extends Component {
 						}
 	              	}
 
-				    if (data.Items[0].fields) data.Items[0].fields.forEach(function(v, k, a) {
+				    if (data.Items[0].fields) Object.keys(data.Items[0].fields).forEach(function(key) {
+				    	var v = data.Items[0].fields[key];
 				      	console.log('Loading field ' + v.type + ':' + v.class + ':' + v.path)
 				      	switch(v.class) {
+				      		case 'org.com.br.empresa':
+				      			fields.push(
+				      				<div key={uuid.v4()} style={style.field}>
+				      					<Select 
+				      						id={context.state.id} 
+				      						key={uuid.v4()} 
+				      						event={context.state.event} 
+				      						floatingLabelText={v.label}
+				  							floatingLabelFixed={true}
+				      						hintText={v.label}
+				      						style={style.field}
+				      						{...v} 
+										/>
+				          			</div>
+				          		);
+				      			break;
 				      		case 'id.gov.br.cei':
 				      		case 'id.gov.br.cnpj':
 				      		case 'id.gov.br.ie':
@@ -376,6 +155,8 @@ class Form extends Component {
 				      			);
 				      			break;
 				      		case 'tm.dt.admissao':
+				      		case 'tm.dt.inicial':
+				      		case 'tm.dt.final':
 				      			fields.push(
 				      				<div key={uuid.v4()} style={style.field}>
 				      					<Datetime 
@@ -390,7 +171,39 @@ class Form extends Component {
 				      					/>
 				      				</div>
 				      			);
-				      			break;	              			
+				      			break;	
+				      		case 'med.tempo.dias':
+				      			fields.push(
+				      				<div key={uuid.v4()} style={style.field}>
+				      					<Textbox 
+				      						id={context.state.id} 
+				      						key={uuid.v4()} 
+				      						event={context.state.event} 
+				      						floatingLabelText={v.label}
+				  							floatingLabelFixed={true}
+				      						hintText={v.label}
+				      						style={style.field}
+				      						{...v} 
+				      					/>
+				      				</div>
+				      			);				      		
+				      			break;     
+				      		case 'inf.types.toogle':
+				      			fields.push(
+				      				<div key={uuid.v4()} style={style.field}>
+										<Toggle
+											id={context.state.id} 
+				      						key={uuid.v4()} 
+				      						event={context.state.event} 
+				      						floatingLabelText={v.label}
+				  							floatingLabelFixed={true}
+				      						hintText={v.label}
+				      						style={style.field}	
+				      						{...v} 							      	
+									    />	
+									</div>
+								);			      		
+				      			break;         			
 				      		default:
 				      			fields.push(
 				      				<div key={uuid.v4()} style={style.field}>
@@ -424,17 +237,14 @@ class Form extends Component {
 	}
 
 	onChange(data) {
-		this.state.fields.forEach(function(v, k, a) {
-			if (v.cid === data.cid) {
-				v.value = data.value;
-				return;
-			}
-		});
+		var newState = this.state;
+		newState.fields[data.path].value = data.value;
+		this.setState(newState);
 	}
 
 	onSave() {
 		if (this.state.progress) {
-			console.log(this.state.id + ':' + this.state.type + ':' + this.state.class + ': request in progress.');
+			//console.log(this.state.id + ':' + this.state.type + ':' + this.state.class + ': request in progress.');
 			return;
 		}
 
@@ -472,7 +282,7 @@ class Form extends Component {
 		const style = {
 			form: {
 				height: '500px',
-				padding: '25px'
+				padding: '0px'
 			},
 			submit: {
 				align: 'center',
@@ -505,67 +315,3 @@ class Form extends Component {
 		);
 	}
 }
-
-class FormDialog extends Component {
-	constructor(props) {
-		super(props);
-
-		this.state = {
-			//open: this.props.open,
-			degre: [2, -2, 2, -2, 2, -2, 2, -2, 2, 2, -2, -2, 2, -2, 2, -2].randomElement(),
-			onSave: null
-		}
-
-		this.onOpen = this.onOpen.bind(this);
-		this.onClose = this.onClose.bind(this);
-		this.onSave = this.onSave.bind(this);
-	}
-
-	onOpen() {
-		this.setState({open: true});
-	}
-
-	onClose() {
-		//this.setState({open: false});
-		this.props.onClose();
-	}
-
-	onSave() {
-		//this.setState({open: false});
-		this.props.onClose();
-	}
-
-	render() {
-		const actions = [
-		  <FlatButton
-		    label="Cancelar"
-		    primary={true}
-		    onTouchTap={this.onClose}
-		  />,
-		  <FlatButton
-		    label="Gravar"
-		    primary={true}
-		    keyboardFocused={true}
-		    onTouchTap={this.onSave}
-		  />,
-		];
-		return (
-			<MuiThemeProvider>
-			<div>
-				<Dialog	
-					actions={actions}
-					modal={false}
-					open={this.props.open}
-					onRequestClose={this.props.onClose}
-					autoScrollBodyContent={true}
-					{...this.props} 
-				>
-					<Form {...this.props} onClose={this.onSave.bind(this)} onSave={this.state.onSave} />
-				</Dialog>
-			</div>
-			</MuiThemeProvider>
-		);
-	}	
-}
-
-export default FormDialog;

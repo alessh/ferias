@@ -3,106 +3,119 @@
     "label": "Empresa",
     "type": "r",
     "class": "org.com.br.empresa",
-    "cid": "r:r.org.com.br.empresa",
-    "fields": [{
-        "label": "Ramo de Atividade",
-        "path": "cnae",
-        "required": false,
-        "type": "a",
-        "class": "cla.gov.br.cnae",
-        "cid": "a:cla.gov.br.cnae:cnae"
-    }, {
-        "label": "Porte da Empresa",
-        "path": "porte",
-        "required": false,
-        "type": "a",
-        "value": "P",
-        "class": "cla.tipo.empresa.porte",
-        "cid": "a:cla.tipo.empresa.porte:porte"
-    }, {
-        "format": null,
-        "label": "Código",
-        "mask": "000XX",
-        "path": "codigo",
-        "required": true,
-        "type": "a",
-        "validation": null,
-        "class": "id.cod.codigo",
-        "cid": "a:id.cod.codigo:codigo"
-    }, {
-        "label": "CEI",
-        "loc": "geo.la.brz",
-        "mask": "000.0000",
-        "path": "cei",
-        "required": false,
-        "type": "a",
-        "class": "id.gov.br.cei",
-        "cid": "a:id.gov.br.cei:cei"
-    }, {
-        "label": "CNPJ",
-        "loc": "geo.la.brz",
-        "mask": "00.000.000/0000-00",
-        "path": "cnpj",
-        "required": true,
-        "type": "a",
-        "class": "id.gov.br.cnpj",
-        "cid": "a:id.gov.br.cnpj:cnpj"
-    }, {
-        "label": "I.E.",
-        "loc": "geo.la.brz",
-        "mask": "000.000.000.000",
-        "path": "ie",
-        "required": true,
-        "type": "a",
-        "class": "id.gov.br.ie",
-        "cid": "a:id.gov.br.ie:ie"
-    }, {
-        "label": "Nome",
-        "loc": "geo.la.brz",
-        "mask": null,
-        "path": "nome",
-        "required": true,
-        "type": "a",
-        "class": "id.nom.nome",
-        "cid": "a:id.nom.nome:nome"
-    }, {
-        "label": "Bairro",
-        "path": "bairro",
-        "required": false,
-        "type": "a",
-        "class": "loc.geo.br.bairro",
-        "cid": "a:loc.geo.br.bairro:bairro"
-    }, {
-        "id": "151475e8-2b8e-43e1-8533-80a92a2903e4",
-        "label": "CEP",
-        "path": "cep",
-        "mask": "00000-000",
-        "required": true,
-        "type": "a",
-        "class": "loc.geo.br.cep",
-        "cid": "a:loc.geo.br.cep:cep"
-    }, {
-        "label": "Endereço",
-        "path": "endereco",
-        "required": false,
-        "type": "a",
-        "class": "loc.geo.br.endereco",
-        "cid": "a:loc.geo.br.endereco:endereco"
-    }, {
-        "label": "Estado",
-        "path": "estado",
-        "required": false,
-        "type": "a",
-        "value": "SP",
-        "class": "loc.geo.br.estado",
-        "cid": "a:loc.geo.br.estado:estado"
-    }, {
-        "label": "Cidade",
-        "path": "cidade",
-        "required": false,
-        "type": "a",
-        "value": "São Paulo",
-        "class": "loc.geo.br.cidade",
-        "cid": "a:loc.geo.br.cidade:cidade"
-    }]
+    "cid": "r:org.com.br.empresa",
+    "fields": {
+         "cnae": {
+            "label": "Ramo de Atividade",
+            "path": "cnae",
+            "required": false,
+            "type": "a",
+            "class": "cla.gov.br.cnae",
+            "cid": "a:cla.gov.br.cnae:cnae"
+        }, 
+        "porte": {
+            "label": "Porte da Empresa",
+            "path": "porte",
+            "required": false,
+            "type": "a",
+            "value": "P",
+            "class": "cla.tipo.empresa.porte",
+            "cid": "a:cla.tipo.empresa.porte:porte"
+        }, 
+        "codigo": {
+            "format": null,
+            "label": "Código",
+            "mask": "000XX",
+            "path": "codigo",
+            "required": true,
+            "type": "a",
+            "validation": null,
+            "class": "id.cod.codigo",
+            "cid": "a:id.cod.codigo:codigo"
+        }, 
+        "cei": {
+            "label": "CEI",
+            "loc": "geo.la.brz",
+            "mask": "000.0000",
+            "path": "cei",
+            "required": false,
+            "type": "a",
+            "class": "id.gov.br.cei",
+            "cid": "a:id.gov.br.cei:cei"
+        }, 
+        "cnpj": {
+            "label": "CNPJ",
+            "loc": "geo.la.brz",
+            "mask": "00.000.000/0000-00",
+            "path": "cnpj",
+            "required": true,
+            "type": "a",
+            "class": "id.gov.br.cnpj",
+            "cid": "a:id.gov.br.cnpj:cnpj"
+        }, 
+        "ie": {
+            "label": "I.E.",
+            "loc": "geo.la.brz",
+            "mask": "000.000.000.000",
+            "path": "ie",
+            "required": true,
+            "type": "a",
+            "class": "id.gov.br.ie",
+            "cid": "a:id.gov.br.ie:ie"
+        }, 
+        "nome": {
+            "label": "Nome",
+            "loc": "geo.la.brz",
+            "mask": null,
+            "path": "nome",
+            "required": true,
+            "type": "a",
+            "class": "id.nom.nome",
+            "cid": "a:id.nom.nome:nome"
+        }, 
+        "bairro": {
+            "label": "Bairro",
+            "path": "bairro",
+            "required": false,
+            "type": "a",
+            "class": "loc.geo.br.bairro",
+            "cid": "a:loc.geo.br.bairro:bairro"
+        }, 
+        "cep": {
+            "id": "151475e8-2b8e-43e1-8533-80a92a2903e4",
+            "label": "CEP",
+            "path": "cep",
+            "mask": "00000-000",
+            "required": true,
+            "type": "a",
+            "class": "loc.geo.br.cep",
+            "cid": "a:loc.geo.br.cep:cep"
+        }, 
+        "endereco": {
+            "label": "Endereço",
+            "path": "endereco",
+            "required": false,
+            "type": "a",
+            "class": "loc.geo.br.endereco",
+            "cid": "a:loc.geo.br.endereco:endereco"
+        }, 
+        "estado": {
+            "label": "Estado",
+            "path": "estado",
+            "required": false,
+            "type": "a",
+            "value": "SP",
+            "class": "loc.geo.br.estado",
+            "cid": "a:loc.geo.br.estado:estado"
+        }, 
+        "cidade": {
+            "label": "Cidade",
+            "path": "cidade",
+            "required": false,
+            "type": "a",
+            "value": "São Paulo",
+            "class": "loc.geo.br.cidade",
+            "cid": "a:loc.geo.br.cidade:cidade"
+        }
+    }
 }
