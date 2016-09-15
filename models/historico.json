@@ -1,6 +1,6 @@
 {
     "id": "00000000-0000-0000-0000-000000000000",
-    "label": "Histórico de Férias",
+    "label": "Histórico de Férias/Dias Descansados",
     "type": "r",
     "class": "hm.funcionario.ferias.historico",
     "cid": "r:hm.funcionario.ferias.historico",

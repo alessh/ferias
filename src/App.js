@@ -5,7 +5,10 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import { AppBar, LinearProgress, FloatingActionButton, Toggle } from 'material-ui';
-import ContentAdd from 'material-ui/svg-icons/content/add';
+import IconHistorico from 'material-ui/svg-icons/notification/event-note';
+import IconFuncionario from 'material-ui/svg-icons/social/person-add';
+import IconEmpresa from 'material-ui/svg-icons/social/location-city';
+import IconFerias from 'material-ui/svg-icons/places/beach-access';
 
 import moment from 'moment';
 
@@ -13,6 +16,7 @@ import moment from 'moment';
 import Calendar from './Calendar';
 import PostList from './PostList';
 import FormDialog from './FormDialog';
+import LancamentoDialog from './LancDialog';
 import './App.css';
 
 // Needed for onTouchTap
@@ -118,6 +122,8 @@ class App extends Component {
 	            		//context.items = insert(v, context.items);
 	            		*/
 
+
+
 						var addAndSort2 = function(arr, val) {
 						    arr.push(val);
 						    var i = arr.length - 1;
@@ -193,39 +199,41 @@ class App extends Component {
 		return (
 			<MuiThemeProvider muiTheme={muiTheme}>
 				<div>
-					<AppBar title="Controle de Férias" iconClassNameRight="muidocs-icon-navigation-expand-more" />
+					<AppBar title="Controle de Férias" iconClassNameRight="muidocs-icon-navigation-expand-more" >
 
-					<div style={{right: 20, marginRight: 230, top: 42, position: 'absolute', zIndex: 1200}}>
-						<FloatingActionButton onTouchTap={this.onOpen.bind(this, 'ferias')} >
-				      		<ContentAdd />
-				    	</FloatingActionButton>
-				    </div>
+						<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}}>
+							<FloatingActionButton onTouchTap={this.onOpen.bind(this, 'ferias')} >
+					      		<IconFerias />
+					    	</FloatingActionButton>
+					    </div>
+
+						<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}}>
+							<FloatingActionButton onTouchTap={this.onOpen.bind(this, 'empresa')} >
+					      		<IconEmpresa />
+					    	</FloatingActionButton>
+					    </div>
+
+						<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}}>
+							<FloatingActionButton onTouchTap={this.onOpen.bind(this, 'funcionario')} >
+					      		<IconFuncionario />
+					    	</FloatingActionButton>
+					    </div>
+
+						<div style={{top: 35, position: 'relative', zIndex: 1200}}>
+							<FloatingActionButton onTouchTap={this.onOpen.bind(this, 'historico')} >
+					      		<IconHistorico />
+					    	</FloatingActionButton>
+					    </div>
+
+					</AppBar>
 
 				    <FormDialog class='hm.funcionario.ferias' open={this.state.open.ferias} onClose={this.onClose.bind(this)} table={config.table} />
 
-					<div style={{right: 20, marginRight: 160, top: 42, position: 'absolute', zIndex: 1200}}>
-						<FloatingActionButton onTouchTap={this.onOpen.bind(this, 'empresa')} >
-				      		<ContentAdd />
-				    	</FloatingActionButton>
-				    </div>
-
 				    <FormDialog class='org.com.br.empresa' open={this.state.open.empresa} onClose={this.onClose.bind(this)} table={config.table} />
-
-					<div style={{right: 20, marginRight: 90, top: 42, position: 'absolute', zIndex: 1200}}>
-						<FloatingActionButton onTouchTap={this.onOpen.bind(this, 'funcionario')} >
-				      		<ContentAdd />
-				    	</FloatingActionButton>
-				    </div>
 
 				    <FormDialog class='hm.funcionario' open={this.state.open.funcionario} onClose={this.onClose.bind(this)} table={config.table} />
 
-					<div style={{right: 20, marginRight: 20, top: 42, position: 'absolute', zIndex: 1200}}>
-						<FloatingActionButton onTouchTap={this.onOpen.bind(this, 'historico')} >
-				      		<ContentAdd />
-				    	</FloatingActionButton>
-				    </div>
-
-				    <FormDialog class='hm.funcionario.ferias.historico' open={this.state.open.historico} onClose={this.onClose.bind(this)} table={config.table} />
+				    <LancamentoDialog class='hm.funcionario.ferias.historico' open={this.state.open.historico} onClose={this.onClose.bind(this)} table={config.table} label={'Histórico de Férias'} />
 
 					<LinearProgress mode="indeterminate" style={progress} />
 
@@ -241,36 +249,6 @@ class App extends Component {
 					
 					<div style={postit}><PostList date={dt1.clone()} items={this.state.items} table={config.table} /></div>
 
-					{/*<div className='container' style={style}><Calendar items={this.state.items} today={dt1.add(1, 'month').clone()} /></div>
-
-					<div style={postit}><PostList date={dt1.clone()} items={this.state.items} table={config.table} /></div>
-
-					<div className='container' style={style}><Calendar items={this.state.items} today={dt1.add(1, 'month').clone()} /></div>
-					
-					<div style={postit}><PostList date={dt1.clone()} items={this.state.items} table={config.table} /></div>*/}
-
-					{/*<RaisedButton label="Formulário" onTouchTap={this.onOpen} />*/}
-
-					{/*
-					<div className='container' style={style}><Form id='af7331bd-900d-497f-90fa-17e46081a6a3' class='org.com.br.empresa' /></div>
-					<div className='container' style={style}><Form id='a5df6d82-d4ba-42fa-92b0-5b99a2d90808' class='org.com.br.empresa' /></div>
-					<div className='container' style={style}><Form id='5c2d650b-575f-44c2-a6d2-a92f7f13d4a3' class='org.com.br.empresa' /></div>
-
-					<div className='container' style={style}><Form id='530c5fb5-048c-4a3f-88cd-b57e70dbe6b7' class='hm.funcionario' /></div>
-					<div className='container' style={style}><Form id='68e8fd98-e948-44bb-8933-a6394ecf99a8' class='hm.funcionario' /></div>
-					*/}
-
-					{/*<div className='container' style={style}>
-
-					</div>
-					
-					<div className='container' style={style}>
-						
-					</div>
-
-					<div className='container' style={style}>
-						
-					</div>*/}
 				</div>
 	        </MuiThemeProvider>		
 		);

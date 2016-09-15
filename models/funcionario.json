@@ -5,6 +5,16 @@
     "class": "hm.funcionario",
     "cid": "r:hm.funcionario",
     "fields": {
+        "empresa": {
+            "class": "org.com.br.empresa",
+            "label": "Empresa",
+            "lang": "pt-BR",
+            "required": true,
+            "type": "e",
+            "path": "empresa",
+            "cid": "e:org.com.br.empresa:empresa",
+            "value": null
+        },
         "matricula": {
             "class": "id.cod.matricula",
             "label": "Matricula",
@@ -43,6 +53,16 @@
             "type": "a",
             "path": "admissao",
             "cid": "a:tm.dt.admissao:admissao"
+        }, 
+        "demissao": {
+            "class": "tm.dt.demissao",
+            "label": "Data de demissão",
+            "lang": "pt-BR",
+            "required": true,
+            "type": "a",
+            "path": "demissao",
+            "cid": "a:tm.dt.demissao:demissao",
+            "value": null
         }
     }
 }

@@ -14,8 +14,6 @@ export default class Toogle extends Field {
 		this.state.value = typeof this.props.value === 'boolean' && this.props.value;
 	}
 	onChange(event, value) {
-	    //this.setState({value: value || event.target.value});
-	    //this.props.event.publish('onChange', {path: this.state.path, value: value || event.target.value});
 	    this.setState({value: value});
 	    this.props.event.publish('onChange', {path: this.state.path, value: value});
 	}	

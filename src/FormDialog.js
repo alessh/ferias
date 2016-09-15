@@ -1,7 +1,14 @@
 import React, { Component } from 'react';
 
+
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import { Dialog, RaisedButton } from 'material-ui';
+
+import { Dialog, AppBar, LinearProgress, FloatingActionButton } from 'material-ui';
+
+import IconDelete from 'material-ui/svg-icons/action/delete';
+import IconAdd from 'material-ui/svg-icons/content/add';
+import IconSave from 'material-ui/svg-icons/action/done';
+import IconExit from 'material-ui/svg-icons/navigation/close';
 
 import Form from './Form';
 
@@ -10,61 +17,80 @@ export default class FormDialog extends Component {
 		super(props);
 
 		this.state = {
-			onSave: null
+			progress: false
 		}
 
-		this.onOpen = this.onOpen.bind(this);
 		this.onClose = this.onClose.bind(this);
 		this.onSave = this.onSave.bind(this);
-	}
-
-	onOpen() {
-		this.setState({open: true});
+		this.onProgress = this.onProgress.bind(this);
 	}
 
 	onClose() {
-		//this.setState({open: false});
 		this.props.onClose();
 	}
 
 	onSave() {
-		//this.setState({open: false});
+		this.setState({progress: true}, function() {
+			this.refs['form'].onSave();
+	    }.bind(this));
 		this.props.onClose();
 	}
 
-	render() {
-		const style = {
-			button: {
-				align: 'center',
-				margin: 12
-			}
+	onProgress(event, progress) {
+
+		switch(progress) {
+			case 'start':
+				this.setState({progress: true})
+				break;
+			default:
+				this.setState({progress: false})
 		}
-		const actions = [
-		  <RaisedButton
-		    label="Cancelar"
-		    primary={true}
-		    onTouchTap={this.onClose}
-		    style={style.button}
-		  />,
-		  <RaisedButton
-		    label="Gravar"
-		    primary={true}
-		    onTouchTap={this.onSave}
-		    style={style.button}
-		  />,
-		];
+
+	}
+
+	render() {
+		const progress = {
+			marginTop: '3px',
+			visibility: this.state.progress ? 'visible' : 'hidden'
+		}
 		return (
 			<MuiThemeProvider>
 			<div>
 				<Dialog	
-					actions={actions}
 					modal={false}
 					open={this.props.open}
 					onRequestClose={this.props.onClose}
 					autoScrollBodyContent={true}
 					{...this.props} 
 				>
-					<Form {...this.props} onClose={this.onSave.bind(this)} onSave={this.state.onSave} />
+
+			    	<AppBar title={this.props.label || this.state.label} >
+				    	<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}}>
+							<FloatingActionButton onTouchTap={this.onSave.bind(this)} >
+					      		<IconDelete />
+					    	</FloatingActionButton>
+					    </div>
+				    	<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}}>
+							<FloatingActionButton onTouchTap={this.onSave.bind(this)} >
+					      		<IconAdd />
+					    	</FloatingActionButton>
+					    </div>
+				    	<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}}>
+							<FloatingActionButton onTouchTap={this.onSave.bind(this)} >
+					      		<IconSave />
+					    	</FloatingActionButton>
+					    </div>
+					    <div style={{top: 35, position: 'relative', zIndex: 1200}}>
+							<FloatingActionButton onTouchTap={this.onClose.bind(this)} >
+					      		<IconExit />
+					    	</FloatingActionButton>
+					    </div>
+				    </AppBar>
+
+				    <LinearProgress mode="indeterminate" style={progress} />
+
+				    <Form ref={'form'} onProgress={this.onProgress.bind(this)} {...this.props} />
+
 				</Dialog>
 			</div>
 			</MuiThemeProvider>

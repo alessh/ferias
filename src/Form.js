@@ -1,9 +1,5 @@
 import React, { Component } from 'react';
 
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import { AppBar, IconMenu, IconButton, MenuItem, RaisedButton } from 'material-ui';
-import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
-
 import uuid from 'node-uuid';
 
 import Name from './Name';
@@ -221,18 +217,24 @@ export default class Form extends Component {
 				      			);
 				      	}
 			      	})	
-	
+
 	            	context.setState({
 	            		label: data.Items[0].label || '',
 	            		fields: data.Items[0].fields || [],
 	            		form: {
 	            			fields: fields
 	            		}
-	            	});
+	            	}, this.props.onProgress('open', 'done'));
+
 	            }
 	        }
+
+			
+
 	    }
 
+	    if (this.props.onProgress) this.props.onProgress('open', 'start');
+	    
 	    dynamodb.query(this.params, result.bind(this));
 	}
 
@@ -248,8 +250,6 @@ export default class Form extends Component {
 			return;
 		}
 
-		this.state.event.publish('onSave', null);
-
 		var params = {
 	        'TableName': table,
 	        'Item': {
@@ -262,17 +262,19 @@ export default class Form extends Component {
 	        }
 	    }
 
+		this.props.onProgress('save', 'start');
+		this.state.event.publish('onSave', null);
+
 	    this.setState({progress: true});
 
 	    var result = function(err, data) {
-	    	delete this.state.progress;
 	    	if (err) {
 	    		console.log(this.state.id + ':' + this.state.type + ':' + this.state.class + ' erro on create/update.');
 	    	} else {
 	    		//this.setState({previous: this.state.value});
 	    		console.log(this.state.id + ':' + this.state.type + ':' + this.state.class + ' create/update OK.');
 	    	}
-	    	this.props.onClose();
+	    	this.props.onProgress('save', 'done');
 	    }
 
 	    dynamodb.put(params, result.bind(this));		
@@ -290,28 +292,12 @@ export default class Form extends Component {
 			}
 		}
 		return (
-			<MuiThemeProvider>
-				<div style={this.props.style || style.form}>
-			    	<AppBar 
-			    		title={this.state.label} 
-			    		iconElementRight={
-					      <IconMenu
-					        iconButtonElement={
-					          <IconButton><MoreVertIcon /></IconButton>
-					        }
-					        targetOrigin={{horizontal: 'right', vertical: 'top'}}
-					        anchorOrigin={{horizontal: 'right', vertical: 'top'}}
-					      >
-					        <MenuItem primaryText="Adicionar" />
-					        <MenuItem primaryText="Fechar" />
-					        <MenuItem primaryText="Ajuda" />
-					      </IconMenu>
-					    }
-			    	/>
-			    	{this.state.form.fields}
-					<RaisedButton label={'Gravar'} primary={true} onClick={this.onSave.bind(this)} style={style.submit} />
-				</div>
-		    </MuiThemeProvider>
+			<div style={this.props.style || style.form}>
+
+		    	{this.state.form.fields}
+
+				{/*<RaisedButton label={'Gravar'} primary={true} onClick={this.onSave.bind(this)} style={style.submit} />*/}
+			</div>
 		);
 	}
 }
