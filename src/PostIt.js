@@ -73,7 +73,7 @@ export default class PostIt extends Component {
 				<div className="quote-container">
 					<i className="pin"></i>
 					<blockquote className={"note " + color} style={style} >
-						{this.props.date.format('DD/MM/YYYY')};
+						{this.props.date.format('DD/MM/YYYY')}
 						<cite className="author">{toTitleCase(this.props.author)}</cite>
 					</blockquote>
 					<FormDialog {...this.props} open={this.state.open} onClose={this.onClose.bind(this)} />

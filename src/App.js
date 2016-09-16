@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 // material-ui
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import Theme from './Theme';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import { AppBar, LinearProgress, FloatingActionButton, Toggle } from 'material-ui';
 import IconHistorico from 'material-ui/svg-icons/notification/event-note';
@@ -37,12 +38,12 @@ const config = {
 // This replaces the textColor value on the palette
 // and then update the keys for each component that depends on it.
 // More on Colors: http://www.material-ui.com/#/customization/colors
-const muiTheme = getMuiTheme({
-	/*floatingActionButton: {
+/*const muiTheme = getMuiTheme({
+	floatingActionButton: {
 		color: 'lightgray',
 		iconColor: 'rgb(0, 188, 212)'
-	}*/
-});
+	}
+});*/
 
 class App extends Component {
 	constructor(props) {
@@ -59,7 +60,8 @@ class App extends Component {
 			progress: true,
 			filter: false,
 			date: this.props.date.clone(),
-			items: []
+			items: [],
+			filtered: null
 		}
 
 		this.items = [];
@@ -122,8 +124,6 @@ class App extends Component {
 	            		//context.items = insert(v, context.items);
 	            		*/
 
-
-
 						var addAndSort2 = function(arr, val) {
 						    arr.push(val);
 						    var i = arr.length - 1;
@@ -139,7 +139,12 @@ class App extends Component {
 						    arr[i] = val;
 						    return arr;
 						}
-	            		context.items = addAndSort2(context.items, v);
+						//var date = moment.utc(v.fields.inicial.value);
+
+						//if ((context.state.filter && date.isSame(context.state.date, 'day')) || (date < context.state.date)) {
+							context.items = addAndSort2(context.items, v);	
+						//}
+	            		
 	              	})
 	            }
 	            if (data.LastEvaluatedKey) {
@@ -159,6 +164,8 @@ class App extends Component {
 		this.onClose = this.onClose.bind(this);
 		this.onToggle = this.onToggle.bind(this);
 
+	    this.onNext = this.onNext.bind(this);
+	    this.onPrev = this.onPrev.bind(this); 
 	}
 
 	onOpen(form) {
@@ -175,8 +182,27 @@ class App extends Component {
 	}
 
 	onToggle(event, value) {
-		this.setState({filter: value})
+		this.setState({filter: false, filtered: null})
 	}
+
+	onFilter(day) {
+		var filter = []
+		var dt = this.state.date.clone().date(day);
+		this.state.items.forEach(function(v, k, a) {
+			if (moment.utc(v.fields.inicial.value).isSame(dt, 'day')) {
+				filter.push(v);
+			}
+		})
+		this.setState({filter: true, date: this.state.date.date(day), filtered: filter});
+	}
+
+	onNext(event) {
+		this.setState({date: this.state.date.add(1, 'month'), filter: false, filtered: null});
+	};
+
+	onPrev(event) {
+		this.setState({date: this.state.date.subtract(1, 'month'), filter: false, filtered: null});
+	};
 
 	render() {
 		const dt1 = this.state.date.clone();
@@ -185,6 +211,8 @@ class App extends Component {
 			display: 'inline-block',
 			toggle: {
 				marginBottom: 16,
+				top: 50,
+				align: 'right'
 			}
 		}
 		const postit = {
@@ -197,7 +225,7 @@ class App extends Component {
 			visibility: this.state.progress ? 'visible' : 'hidden'
 		}
 		return (
-			<MuiThemeProvider muiTheme={muiTheme}>
+			<MuiThemeProvider muiTheme={getMuiTheme(Theme)} >
 				<div>
 					<AppBar title="Controle de Férias" iconClassNameRight="muidocs-icon-navigation-expand-more" >
 
@@ -238,16 +266,25 @@ class App extends Component {
 					<LinearProgress mode="indeterminate" style={progress} />
 
 					<div className='container' style={style}>
-						<Calendar items={this.state.items} today={dt1.clone()} />
-						<Toggle
-							labelPosition="right"
-					      	label={this.state.filter ? 'Filtro ativo :' + this.state.date.format('DD MMM YYYY') : ''}
-					      	onToggle={this.onToggle} 
-					      	style={style.toggle}
-					    />
+						<Calendar items={this.state.filtered || this.state.items} today={dt1.clone()} onFilter={this.onFilter.bind(this)} onNext={this.onNext.bind(this)} onPrev={this.onPrev.bind(this)} />
 					</div>
 					
-					<div style={postit}><PostList date={dt1.clone()} items={this.state.items} table={config.table} /></div>
+					<div style={postit}>
+						
+						{this.state.filter ? 
+							(<div style={{textAlign: 'right'}}><Toggle
+							labelPosition="left"
+					      	label={this.state.filter ? 'Filtro ativo ' + this.state.date.format('DD MMM YYYY') : ''}
+					      	onToggle={this.onToggle} 
+					      	style={style.toggle}
+					      	toggled={this.state.filter}
+					      	/></div>) : 
+					      	(<p></p>)
+					    }
+
+						<PostList date={dt1.clone()} items={this.state.filtered || this.state.items} table={config.table} />
+
+					</div>
 
 				</div>
 	        </MuiThemeProvider>		

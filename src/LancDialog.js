@@ -5,9 +5,9 @@ import moment from 'moment';
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
-import { Dialog, AppBar, LinearProgress, FloatingActionButton, FlatButton, RaisedButton, DatePicker, TextField, Toggle } from 'material-ui';
-import { Step, Stepper, StepLabel, StepButton, StepContent } from 'material-ui/Stepper';
-import { Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table';
+import { Dialog, AppBar, LinearProgress, FloatingActionButton, DatePicker, TextField } from 'material-ui';
+import { Step, Stepper, StepButton, StepContent } from 'material-ui/Stepper';
+import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table';
 
 import IconNext from 'material-ui/svg-icons/navigation/chevron-right';
 import IconPrevious from 'material-ui/svg-icons/navigation/chevron-left';
@@ -22,17 +22,6 @@ const table = 'altamira';
 aws.config.update({accessKeyId: 'AKIAJROLVHLQQHOE72HA', secretAccessKey: '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','region': 'sa-east-1'});
 
 const dynamodb = new aws.DynamoDB.DocumentClient();
-
-const styles = {
-  propContainer: {
-    width: 200,
-    overflow: 'hidden',
-    margin: '20px auto 0',
-  },
-  propToggleHeader: {
-    margin: '20px auto 10px',
-  },
-};
 
 export default class LancDialog extends Component {
 	constructor(props) {
@@ -114,9 +103,6 @@ export default class LancDialog extends Component {
 	    this.onToggle = this.onToggle.bind(this);
 	    this.onChange = this.onChange.bind(this);	
 
-	    this.handleToggle = this.handleToggle.bind(this);
-	    this.handleChange = this.handleChange.bind(this);	
-
 	}
 
 	onClose() {
@@ -165,30 +151,7 @@ export default class LancDialog extends Component {
 		this.setState({height: event.target.value});
 	};
 
-
-  handleToggle = (event, toggled) => {
-    this.setState({
-      [event.target.name]: toggled,
-    });
-  };
-
-  handleChange = (event) => {
-    this.setState({height: event.target.value});
-  };
-
-
 	render() {
-		const style = {
-			display: 'inline-block',
-			form: {
-				height: '500px',
-				padding: '0px'
-			},
-			submit: {
-				align: 'center',
-				margin: 12
-			}
-		}
 		const progress = {
 			marginTop: '3px',
 			visibility: this.state.progress ? 'visible' : 'hidden'
@@ -239,171 +202,100 @@ export default class LancDialog extends Component {
 					    <LinearProgress mode="indeterminate" style={progress} />
 
 				        <Stepper activeStep={stepIndex} linear={false} orientation="vertical">
-				          <Step>
-				            <StepButton onTouchTap={() => this.setState({stepIndex: 0})}>
-				              Detalhes do lançamento
-				            </StepButton>
-				            <StepContent>
-				              	<div style={this.props.style || style.form}>
-					            	<div style={{width: '50%'}}>
-							            <DatePicker 
+				          	<Step>
+					            <StepButton onTouchTap={() => this.setState({stepIndex: 0})}>
+					              	Detalhes do lançamento
+					            </StepButton>
+					            <StepContent>
+					              	<div style={{display: 'inline-block'}}>
+						            	<div style={{width: '50%'}}>
+								            <DatePicker 
+												id={uuid.v4()} 
+												onChange={this.onChangeStartDate} 
+												value={startDate} 
+												formatDate={this.formatDate} 
+												fullWidth={true}
+												floatingLabelText={'Período Inicial'}
+												floatingLabelFixed={true}
+											/>
+										</div>
+										<div style={{width: '50%', align: 'right'}}>
+											<DatePicker 
+												id={uuid.v4()} 
+												onChange={this.onChangeEndDate} 
+												value={endDate} 
+												formatDate={this.formatDate} 
+												fullWidth={true}
+												floatingLabelText={'Período Final'}
+												floatingLabelFixed={true}
+											/>
+										</div>		
+										<TextField 
 											id={uuid.v4()} 
-											onChange={this.onChangeStartDate} 
-											value={startDate} 
-											formatDate={this.formatDate} 
-											fullWidth={true}
-											floatingLabelText={'Período Inicial'}
+											onChange={(e) => this.setState({historico: e.target.value})} 
+											value={this.state.historico} 
+											fullWidth={true} 
+											floatingLabelText={'Histórico'}
 											floatingLabelFixed={true}
-										/>
+										/>							
 									</div>
-									<div style={{width: '50%', align: 'right'}}>
-										<DatePicker 
-											id={uuid.v4()} 
-											onChange={this.onChangeEndDate} 
-											value={endDate} 
-											formatDate={this.formatDate} 
-											fullWidth={true}
-											floatingLabelText={'Período Final'}
-											floatingLabelFixed={true}
-										/>
-									</div>		
-									<TextField 
-										id={uuid.v4()} 
-										onChange={(e) => this.setState({historico: e.target.value})} 
-										value={this.state.historico} 
-										fullWidth={true} 
-										floatingLabelText={'Histórico'}
-										floatingLabelFixed={true}
-									/>							
-								</div>
-				            </StepContent>
-				          </Step>
-				          <Step>
-				            <StepButton onTouchTap={() => this.setState({stepIndex: 1})}>
-				              Selecione os funcionários
-				            </StepButton>
-				            <StepContent>
-				              	<Table
-									height={this.state.height}
-									fixedHeader={this.state.fixedHeader}
-									fixedFooter={this.state.fixedFooter}
-									selectable={this.state.selectable}
-									multiSelectable={this.state.multiSelectable}
-									>
-									<TableHeader
-									displaySelectAll={this.state.showCheckboxes}
-									adjustForCheckbox={this.state.showCheckboxes}
-									enableSelectAll={this.state.enableSelectAll}
-									>
-									<TableRow>
-									  <TableHeaderColumn colSpan="3" tooltip="Funcionários" style={{textAlign: 'center'}}>
-									    Funcionários
-									  </TableHeaderColumn>
-									</TableRow>
-									<TableRow>
-									  <TableHeaderColumn tooltip="Empresa">Empresa</TableHeaderColumn>
-									  <TableHeaderColumn tooltip="Nome">Nome</TableHeaderColumn>
-									  <TableHeaderColumn tooltip="Status">Status</TableHeaderColumn>
-									</TableRow>
-									</TableHeader>
-									<TableBody
-									displayRowCheckbox={this.state.showCheckboxes}
-									deselectOnClickaway={this.state.deselectOnClickaway}
-									showRowHover={this.state.showRowHover}
-									stripedRows={this.state.stripedRows}
-									>
-									{this.state.items.map( (row, index) => (
-									  <TableRow key={index} selected={row.selected}>
-									    <TableRowColumn>{row.empresa}</TableRowColumn>
-									    <TableRowColumn>{row.nome}</TableRowColumn>
-									    <TableRowColumn>{row.status}</TableRowColumn>
-									  </TableRow>
-									  ))}
-									</TableBody>
-									{/*<TableFooter
-									adjustForCheckbox={this.state.showCheckboxes}
-									>
-									<TableRow>
-									  <TableRowColumn>ID</TableRowColumn>
-									  <TableRowColumn>Name</TableRowColumn>
-									  <TableRowColumn>Status</TableRowColumn>
-									</TableRow>
-									<TableRow>
-									  <TableRowColumn colSpan="3" style={{textAlign: 'center'}}>
-									    Super Footer
-									  </TableRowColumn>
-									</TableRow>
-									</TableFooter>*/}
-								</Table>
+					            </StepContent>
+				          	</Step>
+				          	<Step>
+					            <StepButton onTouchTap={() => this.setState({stepIndex: 1})}>
+					              	Selecione os funcionários
+					            </StepButton>
+					            <StepContent>
+					              	<Table
+										height={this.state.height}
+										fixedHeader={this.state.fixedHeader}
+										fixedFooter={this.state.fixedFooter}
+										selectable={this.state.selectable}
+										multiSelectable={this.state.multiSelectable}
+										>
+										<TableHeader
+										displaySelectAll={this.state.showCheckboxes}
+										adjustForCheckbox={this.state.showCheckboxes}
+										enableSelectAll={this.state.enableSelectAll}
+										>
+										<TableRow>
+										  <TableHeaderColumn colSpan="3" tooltip="Funcionários" style={{textAlign: 'center'}}>
+										    Funcionários
+										  </TableHeaderColumn>
+										</TableRow>
+										<TableRow>
+										  <TableHeaderColumn tooltip="Empresa">Empresa</TableHeaderColumn>
+										  <TableHeaderColumn tooltip="Nome">Nome</TableHeaderColumn>
+										  <TableHeaderColumn tooltip="Status">Status</TableHeaderColumn>
+										</TableRow>
+										</TableHeader>
+										<TableBody
+										displayRowCheckbox={this.state.showCheckboxes}
+										deselectOnClickaway={this.state.deselectOnClickaway}
+										showRowHover={this.state.showRowHover}
+										stripedRows={this.state.stripedRows}
+										>
+										{this.state.items.map( (row, index) => (
+										  <TableRow key={index} selected={row.selected}>
+										    <TableRowColumn>{row.empresa}</TableRowColumn>
+										    <TableRowColumn>{row.nome}</TableRowColumn>
+										    <TableRowColumn>{row.status}</TableRowColumn>
+										  </TableRow>
+										  ))}
+										</TableBody>
+									</Table>
 
-{/*<div style={styles.propContainer}>
-          <h3>Table Properties</h3>
-          <TextField
-            floatingLabelText="Table Body Height"
-            defaultValue={this.state.height}
-            onChange={this.handleChange}
-          />
-          <Toggle
-            name="fixedHeader"
-            label="Fixed Header"
-            onToggle={this.handleToggle}
-            defaultToggled={this.state.fixedHeader}
-          />
-          <Toggle
-            name="fixedFooter"
-            label="Fixed Footer"
-            onToggle={this.handleToggle}
-            defaultToggled={this.state.fixedFooter}
-          />
-          <Toggle
-            name="selectable"
-            label="Selectable"
-            onToggle={this.handleToggle}
-            defaultToggled={this.state.selectable}
-          />
-          <Toggle
-            name="multiSelectable"
-            label="Multi-Selectable"
-            onToggle={this.handleToggle}
-            defaultToggled={this.state.multiSelectable}
-          />
-          <Toggle
-            name="enableSelectAll"
-            label="Enable Select All"
-            onToggle={this.handleToggle}
-            defaultToggled={this.state.enableSelectAll}
-          />
-          <h3 style={styles.propToggleHeader}>TableBody Properties</h3>
-          <Toggle
-            name="deselectOnClickaway"
-            label="Deselect On Clickaway"
-            onToggle={this.handleToggle}
-            defaultToggled={this.state.deselectOnClickaway}
-          />
-          <Toggle
-            name="stripedRows"
-            label="Stripe Rows"
-            onToggle={this.handleToggle}
-            defaultToggled={this.state.stripedRows}
-          />
-          <Toggle
-            name="showRowHover"
-            label="Show Row Hover"
-            onToggle={this.handleToggle}
-            defaultToggled={this.state.showRowHover}
-          />
-          <h3 style={styles.propToggleHeader}>Multiple Properties</h3>
-          <Toggle
-            name="showCheckboxes"
-            label="Show Checkboxes"
-            onToggle={this.handleToggle}
-            defaultToggled={this.state.showCheckboxes}
-          />
-        </div>*/}
-
-				            </StepContent>
-				          </Step>
-				        </Stepper>
+				            	</StepContent>
+				          	</Step>
+				          	<Step>
+					            <StepButton onTouchTap={() => this.setState({stepIndex: 2})}>
+					              	Processamento
+					            </StepButton>
+					            <StepContent>
+					            	<p>Processando...</p>
+					            </StepContent>
+					           </Step>
+						</Stepper>				        
 
 					</Dialog>
 				</div>
