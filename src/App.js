@@ -71,6 +71,25 @@ class App extends Component {
 			filtered: null
 		}
 
+		this.onOpen = this.onOpen.bind(this);
+		this.onClose = this.onClose.bind(this);
+		this.onToggle = this.onToggle.bind(this);
+
+	    this.onNext = this.onNext.bind(this);
+	    this.onPrev = this.onPrev.bind(this); 
+
+	    this.load = this.onLoad.bind(this);
+
+	}
+
+	componentDidMount() {
+		this.onLoad();
+	}
+
+	onLoad() {
+
+		this.setState({progress: true});
+
 		this.items = [];
 
 	    this.params = {
@@ -93,7 +112,7 @@ class App extends Component {
 	        //console.log(data)
 	        if (err) {
 	            console.log("Unable to query. Error:", JSON.stringify(err, null, 2));
-	            context.setState({items: []});
+	            context.setState({items: [], progress: false});
 	        } else {
 	            //console.log("Query succeeded.");
 	            
@@ -156,20 +175,13 @@ class App extends Component {
 	              	dynamodb.query(context.params, result.bind(context))
 	            } else {
 	            	//context.items.sort(function(a, b){return b-a});
-	            	context.setState({items: context.items});
+	            	context.setState({items: context.items, progress: false});
 	              	//console.log('Fim do scan'); 
 	            }
 	        }
 	    }
 
-	    dynamodb.query(this.params, result.bind(this));	
-
-		this.onOpen = this.onOpen.bind(this);
-		this.onClose = this.onClose.bind(this);
-		this.onToggle = this.onToggle.bind(this);
-
-	    this.onNext = this.onNext.bind(this);
-	    this.onPrev = this.onPrev.bind(this); 
+	    dynamodb.query(this.params, result.bind(this));			
 	}
 
 	onOpen(form) {
@@ -182,7 +194,7 @@ class App extends Component {
 	}
 
 	onClose(form) {
-		this.setState({open: { funcionario: false, ferias: false, empresa: false, historico: false}});
+		this.setState({open: { funcionario: false, ferias: false, empresa: false, historico: false}}, this.onLoad());
 	}
 
 	onToggle(event, value) {

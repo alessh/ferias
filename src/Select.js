@@ -11,11 +11,11 @@ const aws = window.AWS;
 
 aws.config.update({accessKeyId: 'AKIAJROLVHLQQHOE72HA', secretAccessKey: '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','region': 'sa-east-1'});
 
-const dynamodb = new aws.DynamoDB.DocumentClient();
+//const dynamodb = new aws.DynamoDB.DocumentClient();
 
-const config = {
+/*const config = {
 	table: 'altamira'
-}
+}*/
 
 export default class Select extends Field {
 	constructor(props) {

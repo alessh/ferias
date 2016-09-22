@@ -5,7 +5,16 @@ import moment from 'moment';
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
-import { Dialog, AppBar, LinearProgress, FloatingActionButton, TextField, SelectField, RaisedButton, MenuItem } from 'material-ui';
+import { 
+	Dialog, 
+	AppBar, 
+	LinearProgress, 
+	FloatingActionButton, 
+	//TextField, 
+	//SelectField, 
+	//RaisedButton, 
+	MenuItem 
+} from 'material-ui';
 
 import IconDelete from 'material-ui/svg-icons/action/delete';
 import IconAdd from 'material-ui/svg-icons/content/add';
@@ -13,8 +22,16 @@ import IconSave from 'material-ui/svg-icons/action/done';
 import IconExit from 'material-ui/svg-icons/navigation/close';
 
 import Formsy from 'formsy-react';
-import { FormsyCheckbox, FormsyDate, FormsyRadio, FormsyRadioGroup,
-    FormsySelect, FormsyText, FormsyTime, FormsyToggle } from 'formsy-material-ui/lib';
+import { 
+	//FormsyCheckbox, 
+	FormsyDate, 
+	//FormsyRadio, 
+	//FormsyRadioGroup,
+    FormsySelect, 
+    FormsyText, 
+    //FormsyTime, 
+    FormsyToggle 
+} from 'formsy-material-ui/lib';
 
 import 'aws-sdk/dist/aws-sdk';
 const aws = window.AWS;
@@ -42,7 +59,20 @@ export default class Ferias extends Component {
 	    this.submitForm = this.submitForm.bind(this);
 	    this.notifyFormError = this.notifyFormError.bind(this);
 
+	    this.onLoad = this.onLoad.bind(this);
+
+
+	}
+
+	componentDidMount() {
+		this.onLoad();
+	}
+
+	onLoad() {
 		if (this.props.id) {
+
+			this.setState({progress: true});
+
 			this.params = {
 		        TableName: table,
 		        KeyConditionExpression: "#pk = :pk and #sk = :sk",   
@@ -59,7 +89,7 @@ export default class Ferias extends Component {
 		    }
 
 			var result = function(err, data) {
-				const context = this;
+				//const context = this;
 		        //console.log(data)
 		        if (err) {
 		            console.log("Unable to query for Form Definition. Error:", JSON.stringify(err, null, 2));
@@ -82,11 +112,14 @@ export default class Ferias extends Component {
 							const utc2 = moment.utc(data.Items[0].final);
 							newState.final = new Date(utc2.year(), utc2.month(), utc2.date(), utc2.toDate().getTimezoneOffset() / 60, 0, 0);
 
+							newState.progress = false;
+
 			            	this.setState(newState);
 					    }	
 
 		            }
 		        }
+
 		    }
 
 		    dynamodb.query(this.params, result.bind(this));
@@ -114,17 +147,17 @@ export default class Ferias extends Component {
 	}
 
 	styles= {
-		paperStyle: {
+		/*paperStyle: {
 			width: 300,
 			margin: 'auto',
 			padding: 20,
-		},
+		},*/
 		switchStyle: {
 			marginBottom: 16,
 		},
-		submitStyle: {
+		/*submitStyle: {
 			marginTop: 32,
-		},
+		},*/
 	}
 
 	enableButton() {
@@ -183,8 +216,16 @@ export default class Ferias extends Component {
 	}
 
 	render() {
-		let {paperStyle, switchStyle, submitStyle } = this.styles;
-    	let { wordsError, numericError, urlError } = this.errorMessages;
+		let { 
+			//paperStyle, 
+			switchStyle, 
+			//submitStyle 
+		} = this.styles;
+    	let { 
+    		wordsError, 
+    		numericError, 
+    		//urlError 
+    	} = this.errorMessages;
 
 		const items = [];
 		items.forEach(function(v, k, a) {

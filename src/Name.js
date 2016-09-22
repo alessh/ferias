@@ -1,6 +1,6 @@
-import React, {Component} from 'react';
+import React from 'react';
 
-import { TextField, CircularProgress } from 'material-ui';
+import { TextField } from 'material-ui';
 
 import uuid from 'node-uuid';
 
