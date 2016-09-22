@@ -1,21 +1,19 @@
 {
-    "id": "00000000-0000-0000-0000-000000000000",
+    "type": "Ferias",
     "label": "Férias",
-    "type": "r",
-    "class": "hm.funcionario.ferias",
-    "cid": "r:hm.funcionario.ferias",
-    "fields": {
-        "empresa": {
+    "fields": [
+        {
             "class": "org.com.br.empresa",
             "label": "Empresa",
             "lang": "pt-BR",
             "required": true,
-            "type": "e",
+            "type": "Empresa",
+            "text": "nome",
             "path": "empresa",
             "cid": "e:org.com.br.empresa:empresa",
             "value": null
         },
-        "nome": {
+        {
             "class": "id.nom.nome",
             "label": "Nome",
             "lang": "pt-BR",
@@ -24,7 +22,7 @@
             "path": "nome",
             "cid": "a:id.nom.nome:nome"
         }, 
-        "inicial": {
+        {
             "class": "tm.dt.inicial",
             "label": "Período Aquisitivo Inicial",
             "lang": "pt-BR",
@@ -33,7 +31,7 @@
             "path": "inicial",
             "cid": "a:tm.dt.inicial:inicial"
         }, 
-        "final": {
+        {
             "class": "tm.dt.final",
             "label": "Período Aquisitivo Final",
             "lang": "pt-BR",
@@ -42,7 +40,7 @@
             "path": "final",
             "cid": "a:tm.dt.final:final"
         }, 
-        "dias": {
+        {
             "class": "med.tempo.dias",
             "label": "Dias de direito",
             "lang": "pt-BR",
@@ -52,7 +50,7 @@
             "cid": "a:med.tempo.dias:dias",
             "value": 30
         }, 
-        "realizado": {
+        {
             "class": "inf.types.toogle",
             "label": "Realizado",
             "required": true,
@@ -61,5 +59,5 @@
             "cid": "a:inf.types.toogle:realizado",
             "value": false
         }
-    }
+    ]
 }

@@ -19,19 +19,14 @@ aws.config.update({accessKeyId: 'AKIAJROLVHLQQHOE72HA', secretAccessKey: 'th/N/a
 const dynamodb = new aws.DynamoDB.DocumentClient();
 
 export default class Form extends Component {
+
 	constructor(props) {
 		super(props);
 
-	    this.state = {
-	    	id: this.props.id || uuid.v4(),
-	    	cid: this.props.cid || (this.props.type || 'r') + ':' + this.props.class,
-	    	type: this.props.type || 'r',
-	    	class: this.props.class,
-	    	label: this.props.label || '',
-	    	fields: [],  // field definitions
-	    	form: {
-	    		fields: []  // form fields
-	    	},
+		this.state = {
+			id: this.props.id || uuid.v4(),
+			type: this.props.schema.type,
+			label: this.props.schema.label,
 	    	event: {
 		    	publish: function (event, data) {
 			        if (!this._events[event]) return; // no one is listening to this event
@@ -44,7 +39,54 @@ export default class Form extends Component {
 			    },
 			    _events: {}
 			}
-	    }
+		}; // computed fields
+
+		/*
+		if (this.props.id) {
+			this.params = {
+		        TableName: table,
+		        KeyConditionExpression: "#pk = :pk and #sk = :sk",   
+		        ExpressionAttributeNames: {
+		        	"#pk": "id",
+		            "#sk": "type"
+		        },
+		        ExpressionAttributeValues: { 
+		        	":pk": this.state.id,
+		            ":sk": this.state.type
+		        },
+		        ExclusiveStartKey: null,
+		        Limit: 1
+		    }
+
+			var result = function(err, data) {
+				const context = this;
+		        //console.log(data)
+		        if (err) {
+		            console.log("Unable to query for Form Definition. Error:", JSON.stringify(err, null, 2));
+		        } else {
+		            //console.log("Query for Form Definition succeeded.");
+		            
+		            if (data.Count > 0) {
+		              	console.log('Found Form Data: ' + this.state.id + ':' + this.state.type); 
+
+		              	var newState = context.state;
+
+					    if (data.Items[0]) {
+					    	Object.keys(data.Items[0]).forEach(function(key) {
+						    	newState[key] = data.Items[0][key];
+					      	})
+			            	context.setState(newState);
+					    }	
+
+		            }
+		        }
+		    }
+
+		    //if (this.props.onProgress) this.props.onProgress('open', 'start');
+		    
+		    dynamodb.query(this.params, result.bind(this));
+		}
+		*/
 
 	    this.onChange = this.onChange.bind(this);
 	    this.onSave = this.onSave.bind(this);
@@ -52,214 +94,30 @@ export default class Form extends Component {
 	    this.state.event.subscribe('onChange', this.onChange);
 	}
 
-	componentWillMount() {
-		const definition_id = '00000000-0000-0000-0000-000000000000'; // model id
-
-		this.params = {
-	        TableName: table,
-	        KeyConditionExpression: "#pk = :pk and #sk = :sk",   
-	        ExpressionAttributeNames: {
-	        	"#pk": "id",
-	            "#sk": "cid"
-	        },
-	        ExpressionAttributeValues: { 
-	        	":pk": this.props.id || definition_id,
-	            ":sk": this.state.cid
-	        },
-	        ExclusiveStartKey: null,
-	        Limit: 1
-	    }
-
-		var result = function(err, data) {
-			const context = this;
-	        //console.log(data)
-	        if (err) {
-	            console.log("Unable to query for Form Definition. Error:", JSON.stringify(err, null, 2));
-	        } else {
-	            //console.log("Query for Form Definition succeeded.");
-	            
-	            if (data.Count > 0) {
-	              	console.log('Found Form Definition: ' + this.state.id + ':' + this.state.cid); 
-
-	              	var fields = [];
-
-	              	const style = {
-	              		field: {
-							marginLeft: '10px',
-							marginRight: '10px'
-						}
-	              	}
-
-				    if (data.Items[0].fields) Object.keys(data.Items[0].fields).forEach(function(key) {
-				    	var v = data.Items[0].fields[key];
-				      	console.log('Loading field ' + v.type + ':' + v.class + ':' + v.path)
-				      	switch(v.class) {
-				      		case 'org.com.br.empresa':
-				      			fields.push(
-				      				<div key={uuid.v4()} style={style.field}>
-				      					<Select 
-				      						id={context.state.id} 
-				      						key={uuid.v4()} 
-				      						event={context.state.event} 
-				      						floatingLabelText={v.label}
-				  							floatingLabelFixed={true}
-				      						hintText={v.label}
-				      						style={style.field}
-				      						{...v} 
-										/>
-				          			</div>
-				          		);
-				      			break;
-				      		case 'id.gov.br.cei':
-				      		case 'id.gov.br.cnpj':
-				      		case 'id.gov.br.ie':
-				      		case 'id.cod.codigo':
-				      			fields.push(
-				      				<div key={uuid.v4()} style={style.field}>
-				      					<Code 
-				      						id={context.state.id} 
-				      						key={uuid.v4()} 
-				      						event={context.state.event} 
-				      						floatingLabelText={v.label}
-				  							floatingLabelFixed={true}
-				      						hintText={v.label}
-				      						style={style.field}
-				      						{...v} 
-										/>
-				          			</div>
-				          		);
-				      			break;
-				      		case 'id.nom.nome':
-				      		case 'loc.geo.br.estado':
-				      		case 'loc.geo.br.bairro':
-				      		case 'loc.geo.br.cep':
-				      		case 'cla.gov.br.cnae':
-				      		case 'cla.tipo.empresa.porte':
-				      			fields.push(
-				      				<div key={uuid.v4()} style={style.field}>
-				      					<Name 
-				      						id={context.state.id} 
-				      						key={uuid.v4()} 
-				      						event={context.state.event} 
-				      						floatingLabelText={v.label}
-				  							floatingLabelFixed={true}
-				      						hintText={v.label}
-				      						style={style.field}
-				      						{...v} 
-				      					/>
-				      				</div>
-				      			);
-				      			break;
-				      		case 'tm.dt.admissao':
-				      		case 'tm.dt.inicial':
-				      		case 'tm.dt.final':
-				      			fields.push(
-				      				<div key={uuid.v4()} style={style.field}>
-				      					<Datetime 
-				      						id={context.state.id} 
-				      						key={uuid.v4()} 
-				      						event={context.state.event} 
-				      						floatingLabelText={v.label}
-				  							floatingLabelFixed={true}
-				      						hintText={v.label}
-				      						style={style.field}
-				      						{...v} 
-				      					/>
-				      				</div>
-				      			);
-				      			break;	
-				      		case 'med.tempo.dias':
-				      			fields.push(
-				      				<div key={uuid.v4()} style={style.field}>
-				      					<Textbox 
-				      						id={context.state.id} 
-				      						key={uuid.v4()} 
-				      						event={context.state.event} 
-				      						floatingLabelText={v.label}
-				  							floatingLabelFixed={true}
-				      						hintText={v.label}
-				      						style={style.field}
-				      						{...v} 
-				      					/>
-				      				</div>
-				      			);				      		
-				      			break;     
-				      		case 'inf.types.toogle':
-				      			fields.push(
-				      				<div key={uuid.v4()} style={style.field}>
-										<Toggle
-											id={context.state.id} 
-				      						key={uuid.v4()} 
-				      						event={context.state.event} 
-				      						floatingLabelText={v.label}
-				  							floatingLabelFixed={true}
-				      						hintText={v.label}
-				      						style={style.field}	
-				      						{...v} 							      	
-									    />	
-									</div>
-								);			      		
-				      			break;         			
-				      		default:
-				      			fields.push(
-				      				<div key={uuid.v4()} style={style.field}>
-				      					<Textbox 
-				      						id={context.state.id} 
-				      						key={uuid.v4()} 
-				      						event={context.state.event} 
-				      						floatingLabelText={v.label}
-				  							floatingLabelFixed={true}
-				      						hintText={v.label}
-				      						style={style.field}
-				      						{...v} 
-				      					/>
-				      				</div>
-				      			);
-				      	}
-			      	})	
-
-	            	context.setState({
-	            		label: data.Items[0].label || '',
-	            		fields: data.Items[0].fields || [],
-	            		form: {
-	            			fields: fields
-	            		}
-	            	}, this.props.onProgress('open', 'done'));
-
-	            }
-	        }
-
-			
-
-	    }
-
-	    if (this.props.onProgress) this.props.onProgress('open', 'start');
-	    
-	    dynamodb.query(this.params, result.bind(this));
-	}
-
 	onChange(data) {
 		var newState = this.state;
-		newState.fields[data.path].value = data.value;
+		newState[data.path] = data.value;
 		this.setState(newState);
 	}
 
-	onSave() {
+	onSave(callback) {
 		if (this.state.progress) {
-			//console.log(this.state.id + ':' + this.state.type + ':' + this.state.class + ': request in progress.');
+			console.log(this.state.id + ':' + this.state.type  + ': request in progress.');
 			return;
 		}
 
+	    var context = this;
+	    var state = {};
+
+	    Object.keys(this.state).forEach( function(key) {
+	    	if (key !== 'form' && key !== 'event' && key !== 'label') {
+	    		state[key] = context.state[key];
+	    	}
+	    })
+
 		var params = {
 	        'TableName': table,
-	        'Item': {
-	        	id: this.state.id,
-	        	cid: this.state.cid || (this.state.type || 'r') + ':' + this.state.class,
-	        	type: this.state.type || 'r',
-	        	class: this.state.class,
-	        	label: this.state.label || '',
-	        	fields: this.state.fields || []
-	        }
+	        'Item': state
 	    }
 
 		this.props.onProgress('save', 'start');
@@ -269,18 +127,20 @@ export default class Form extends Component {
 
 	    var result = function(err, data) {
 	    	if (err) {
-	    		console.log(this.state.id + ':' + this.state.type + ':' + this.state.class + ' erro on create/update.');
+	    		console.log(this.state.id + ':' + this.state.type + ' erro on create/update.');
+	    		alert('Erro ao gravar os dados: ' + err);
 	    	} else {
-	    		//this.setState({previous: this.state.value});
-	    		console.log(this.state.id + ':' + this.state.type + ':' + this.state.class + ' create/update OK.');
+	    		console.log(this.state.id + ':' + this.state.type + ' create/update OK.');
+	    		if (callback) callback();
 	    	}
-	    	this.props.onProgress('save', 'done');
 	    }
 
 	    dynamodb.put(params, result.bind(this));		
 	}
 
 	render() {
+		var fields = [];
+
 		const style = {
 			form: {
 				height: '500px',
@@ -289,14 +149,153 @@ export default class Form extends Component {
 			submit: {
 				align: 'center',
 				margin: 12
+			},
+			field: {
+				marginLeft: '10px',
+				marginRight: '10px'
 			}
 		}
+
+		var context = this;
+
+	    if (this.props.schema.fields instanceof Array) Object.keys(this.props.schema.fields).forEach(function(key) {
+	    	
+	    	var v = context.props.schema.fields[key];
+	      	console.log('Loading field ' + v.type + ':' + v.class + ':' + v.path)
+	      	
+	      	v.value = context.state[v.path] || null;
+	      	
+	      	switch(v.class) {
+	      		case 'org.com.br.empresa':
+	      			fields.push(
+	      				<div key={uuid.v4()} style={style.field}>
+	      					<Select 
+	      						id={context.state.id} 
+	      						key={uuid.v4()} 
+	      						event={context.state.event} 
+	      						floatingLabelText={v.label}
+	  							floatingLabelFixed={true}
+	      						hintText={v.label}
+	      						text={v.text}
+	      						style={style.field}
+	      						{...v} 
+							/>
+	          			</div>
+	          		);
+	      			break;
+	      		case 'id.gov.br.cei':
+	      		case 'id.gov.br.cnpj':
+	      		case 'id.gov.br.ie':
+	      		case 'id.cod.codigo':
+	      			fields.push(
+	      				<div key={uuid.v4()} style={style.field}>
+	      					<Code 
+	      						id={context.state.id} 
+	      						key={uuid.v4()} 
+	      						event={context.state.event} 
+	      						floatingLabelText={v.label}
+	  							floatingLabelFixed={true}
+	      						hintText={v.label}
+	      						style={style.field}
+	      						{...v} 
+							/>
+	          			</div>
+	          		);
+	      			break;
+	      		case 'id.nom.nome':
+	      		case 'loc.geo.br.estado':
+	      		case 'loc.geo.br.bairro':
+	      		case 'loc.geo.br.cep':
+	      		case 'cla.gov.br.cnae':
+	      		case 'cla.tipo.empresa.porte':
+	      			fields.push(
+	      				<div key={uuid.v4()} style={style.field}>
+	      					<Name 
+	      						id={context.state.id} 
+	      						key={uuid.v4()} 
+	      						event={context.state.event} 
+	      						floatingLabelText={v.label}
+	  							floatingLabelFixed={true}
+	      						hintText={v.label}
+	      						style={style.field}
+	      						{...v} 
+	      					/>
+	      				</div>
+	      			);
+	      			break;
+	      		case 'tm.dt.admissao':
+	      		case 'tm.dt.inicial':
+	      		case 'tm.dt.final':
+	      			fields.push(
+	      				<div key={uuid.v4()} style={style.field}>
+	      					<Datetime 
+	      						id={context.state.id} 
+	      						key={uuid.v4()} 
+	      						event={context.state.event} 
+	      						floatingLabelText={v.label}
+	  							floatingLabelFixed={true}
+	      						hintText={v.label}
+	      						style={style.field}
+	      						{...v} 
+	      					/>
+	      				</div>
+	      			);
+	      			break;	
+	      		case 'med.tempo.dias':
+	      			fields.push(
+	      				<div key={uuid.v4()} style={style.field}>
+	      					<Textbox 
+	      						id={context.state.id} 
+	      						key={uuid.v4()} 
+	      						event={context.state.event} 
+	      						floatingLabelText={v.label}
+	  							floatingLabelFixed={true}
+	      						hintText={v.label}
+	      						style={style.field}
+	      						{...v} 
+	      					/>
+	      				</div>
+	      			);				      		
+	      			break;     
+	      		case 'inf.types.toogle':
+	      			fields.push(
+	      				<div key={uuid.v4()} style={style.field}>
+							<Toggle
+								id={context.state.id} 
+	      						key={uuid.v4()} 
+	      						event={context.state.event} 
+	      						floatingLabelText={v.label}
+	  							floatingLabelFixed={true}
+	      						hintText={v.label}
+	      						style={style.field}	
+	      						{...v} 							      	
+						    />	
+						</div>
+					);			      		
+	      			break;         			
+	      		default:
+	      			fields.push(
+	      				<div key={uuid.v4()} style={style.field}>
+	      					<Textbox 
+	      						id={context.state.id} 
+	      						key={uuid.v4()} 
+	      						event={context.state.event} 
+	      						floatingLabelText={v.label}
+	  							floatingLabelFixed={true}
+	      						hintText={v.label}
+	      						style={style.field}
+	      						{...v} 
+	      					/>
+	      				</div>
+	      			);
+	      	}
+      	})
+
 		return (
 			<div style={this.props.style || style.form}>
 
-		    	{this.state.form.fields}
+		    	{fields}
 
-				{/*<RaisedButton label={'Gravar'} primary={true} onClick={this.onSave.bind(this)} style={style.submit} />*/}
 			</div>
 		);
 	}

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { MenuItem, SelectField, CircularProgress } from 'material-ui';
+import { MenuItem, SelectField } from 'material-ui';
 
 import uuid from 'node-uuid';
 
@@ -21,22 +21,26 @@ export default class Select extends Field {
 	constructor(props) {
 		super(props);
 
+		this.state = {
+			text: this.props.text,
+			items: []
+		}
+	}
+
+	/*componentWillMount() {
 		this.items = [];
 
 	    this.params = {
 	        TableName: config.table,
-	        IndexName: "cid-index",
+	        IndexName: "type-id-index",
 	        KeyConditionExpression: "#pk = :pk",   
 	        ExpressionAttributeNames: {
-	            "#pk": "cid",
-	            "#f": "id"
+	            "#pk": "type"
 	        },
 	        ExpressionAttributeValues: { 
-	            ":pk": 'r:' + this.props.class,
-	            ":f": "00000000-0000-0000-0000-000000000000"
+	            ":pk": this.props.type
 	        },
-	        FilterExpression: "#f <> :f",
-	        Projection: 'id, fields',
+	        Projection: 'id, ' + this.state.text,
 	        ExclusiveStartKey: null,
 	        Limit: 10
 	    }
@@ -51,7 +55,7 @@ export default class Select extends Field {
 	            
 	            if (data.Count > 0) {
 	            	data.Items.forEach(function(v, k, a) {
-	            		context.items.push({id: v.id, nome: v.fields.nome.value});
+	            		context.items.push({id: v.id, text: v[context.state.text]});
 	            	})
 	            }
 	            if (data.LastEvaluatedKey) {
@@ -64,24 +68,12 @@ export default class Select extends Field {
 	    }
 
 	    dynamodb.query(this.params, result.bind(this));		            		
-	}
-
-	/*componentWillMount() {
-		this.state.loc = this.props.loc || null;
-		this.state.mask = this.props.mask || null;
-		this.state.lang = this.props.lang || null;
-		console.log('Component will mount: ' + this.state.id + ':' + this.state.type);
 	}*/
 
-	//onChange = (event, index, value) => this.setState({value: value});
-
 	render() {
-		const progress = {
-			visibility: this.state.progress ? 'visible' : 'hidden', position: 'absolute'
-		}
 		const items = [];
-		this.items.forEach(function(v, k, a) {
-			items.push(<MenuItem key={uuid.v4()} value={v.id} primaryText={v.nome} />)
+		items.forEach(function(v, k, a) {
+			items.push(<MenuItem key={uuid.v4()} value={v.id} primaryText={v.text} />)
 		})
 		return (
 			<div>
@@ -95,7 +87,6 @@ export default class Select extends Field {
 				>
 					{items}
 		        </SelectField>
-				<CircularProgress size={0.5} style={progress} />
 			</div>
 		);
 	}

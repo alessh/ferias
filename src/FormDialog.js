@@ -31,9 +31,9 @@ export default class FormDialog extends Component {
 
 	onSave() {
 		this.setState({progress: true}, function() {
-			this.refs['form'].onSave();
+			this.refs['form'].onSave(this.props.onClose.bind(this));
 	    }.bind(this));
-		this.props.onClose();
+		
 	}
 
 	onProgress(event, progress) {
@@ -49,16 +49,18 @@ export default class FormDialog extends Component {
 	}
 
 	render() {
-		const progress = {
-			marginTop: '3px',
-			visibility: this.state.progress ? 'visible' : 'hidden'
+		var style = {
+			progress: {
+				marginTop: '3px',
+				visibility: this.state.progress ? 'visible' : 'hidden'
+			}
 		}
 		return (
 			<MuiThemeProvider>
 			<div>
 				<Dialog	
 					modal={false}
-					open={this.props.open}
+					open={true}
 					onRequestClose={this.props.onClose}
 					autoScrollBodyContent={true}
 					{...this.props} 
@@ -87,7 +89,7 @@ export default class FormDialog extends Component {
 					    </div>
 				    </AppBar>
 
-				    <LinearProgress mode="indeterminate" style={progress} />
+				    <LinearProgress mode="indeterminate" style={style.progress} />
 
 				    <Form ref={'form'} onProgress={this.onProgress.bind(this)} {...this.props} />
 

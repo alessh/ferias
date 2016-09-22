@@ -1,11 +1,8 @@
 {
-    "id": "00000000-0000-0000-0000-000000000000",
+    "type": "Empresa",
     "label": "Empresa",
-    "type": "r",
-    "class": "org.com.br.empresa",
-    "cid": "r:org.com.br.empresa",
-    "fields": {
-         "cnae": {
+    "fields": [
+        {
             "label": "Ramo de Atividade",
             "path": "cnae",
             "required": false,
@@ -13,7 +10,7 @@
             "class": "cla.gov.br.cnae",
             "cid": "a:cla.gov.br.cnae:cnae"
         }, 
-        "porte": {
+        {
             "label": "Porte da Empresa",
             "path": "porte",
             "required": false,
@@ -22,7 +19,7 @@
             "class": "cla.tipo.empresa.porte",
             "cid": "a:cla.tipo.empresa.porte:porte"
         }, 
-        "codigo": {
+        {
             "format": null,
             "label": "Código",
             "mask": "000XX",
@@ -33,7 +30,7 @@
             "class": "id.cod.codigo",
             "cid": "a:id.cod.codigo:codigo"
         }, 
-        "cei": {
+        {
             "label": "CEI",
             "loc": "geo.la.brz",
             "mask": "000.0000",
@@ -43,7 +40,7 @@
             "class": "id.gov.br.cei",
             "cid": "a:id.gov.br.cei:cei"
         }, 
-        "cnpj": {
+        {
             "label": "CNPJ",
             "loc": "geo.la.brz",
             "mask": "00.000.000/0000-00",
@@ -53,7 +50,7 @@
             "class": "id.gov.br.cnpj",
             "cid": "a:id.gov.br.cnpj:cnpj"
         }, 
-        "ie": {
+        {
             "label": "I.E.",
             "loc": "geo.la.brz",
             "mask": "000.000.000.000",
@@ -63,7 +60,7 @@
             "class": "id.gov.br.ie",
             "cid": "a:id.gov.br.ie:ie"
         }, 
-        "nome": {
+        {
             "label": "Nome",
             "loc": "geo.la.brz",
             "mask": null,
@@ -73,7 +70,7 @@
             "class": "id.nom.nome",
             "cid": "a:id.nom.nome:nome"
         }, 
-        "bairro": {
+        {
             "label": "Bairro",
             "path": "bairro",
             "required": false,
@@ -81,7 +78,7 @@
             "class": "loc.geo.br.bairro",
             "cid": "a:loc.geo.br.bairro:bairro"
         }, 
-        "cep": {
+        {
             "id": "151475e8-2b8e-43e1-8533-80a92a2903e4",
             "label": "CEP",
             "path": "cep",
@@ -91,7 +88,7 @@
             "class": "loc.geo.br.cep",
             "cid": "a:loc.geo.br.cep:cep"
         }, 
-        "endereco": {
+        {
             "label": "Endereço",
             "path": "endereco",
             "required": false,
@@ -99,7 +96,7 @@
             "class": "loc.geo.br.endereco",
             "cid": "a:loc.geo.br.endereco:endereco"
         }, 
-        "estado": {
+        {
             "label": "Estado",
             "path": "estado",
             "required": false,
@@ -108,7 +105,7 @@
             "class": "loc.geo.br.estado",
             "cid": "a:loc.geo.br.estado:estado"
         }, 
-        "cidade": {
+        {
             "label": "Cidade",
             "path": "cidade",
             "required": false,
@@ -117,5 +114,5 @@
             "class": "loc.geo.br.cidade",
             "cid": "a:loc.geo.br.cidade:cidade"
         }
-    }
+    ]
 }

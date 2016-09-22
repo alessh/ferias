@@ -15,11 +15,11 @@ class Today extends Component {
     const today = this.props.today;
     return (
       <div className='today' style={{display: 'inline-block', width: '100%', padding: 0}}>
-        <FloatingActionButton onTouchTap={this.props.onPrev} mini={true} disable={true} style={{ marginTop: 30, marginRight: 5, align: 'left', padding: 0}} >
+        <FloatingActionButton onTouchTap={this.props.onPrev} mini={true} style={{ marginTop: 30, marginRight: 5, align: 'left', padding: 0}} >
           <IconPrevious />
         </FloatingActionButton>
         {today.date() + ' de ' + month[today.month()] + ' ' + today.year()}
-        <FloatingActionButton onTouchTap={this.props.onNext} mini={true} disable={true} style={{ marginTop: 30, marginLeft: 5, align: 'right', padding: 0}} >
+        <FloatingActionButton onTouchTap={this.props.onNext} mini={true} style={{ marginTop: 30, marginLeft: 5, align: 'right', padding: 0}} >
           <IconNext />
         </FloatingActionButton>
       </div>
@@ -82,22 +82,19 @@ class Day extends Component {
 
     if (this.props.ferias) {
       
-      if (this.props.ferias[this.props.date.date()]) {
+      if (this.props.ferias[this.props.date.format('YYYYMMDD')]) {
 
-          this.props.ferias[this.props.date.date()].forEach(function(ferias) {
-            var data = ferias.fields.inicial.value;
+          this.props.ferias[this.props.date.format('YYYYMMDD')].forEach(function(ferias) {
+            var data = ferias.inicial;
             if (data) {
               var inicial = moment.utc(data);
 
-              if (inicial.clone().add(12, 'months') <= today) {
+              if (inicial.clone().add(12, 'months').diff(today, 'days') <= 0) {
                 warnings = 'deadline';
-                return;
-              }  else if (inicial.clone().add(11, 'months') <= today) {
+              }  else if (inicial.clone().add(11, 'months').diff(today, 'days') <= 0) {
                 warnings = 'critical';
-                return;
-              } else if (inicial <= today) {
+              } else if (inicial.diff(today, 'days') <= 0) {
                 warnings = 'warning';
-                return;
               }
             }           
           })
@@ -192,9 +189,9 @@ class Calendar extends Component {
   render() {
     var ferias = {};
     this.props.items.forEach(function ( v ) {
-      var inicial = moment.utc(v.fields.inicial.value);
-      if (ferias[ inicial.date() ] === undefined) ferias[ inicial.date() ] = [];
-      ferias[ inicial.date() ].push( v );
+      var inicial = moment.utc(v.inicial);
+      if (ferias[ inicial.format('YYYYMMDD') ] === undefined) ferias[ inicial.format('YYYYMMDD') ] = [];
+      ferias[ inicial.format('YYYYMMDD') ].push( v );
     });
     return (
       <div className='calendar' >

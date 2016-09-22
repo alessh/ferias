@@ -20,6 +20,13 @@ import FormDialog from './FormDialog';
 import LancamentoDialog from './LancDialog';
 import './App.css';
 
+//import Ferias from './../models/ferias.json';
+import Empresa from './../models/empresa.json';
+import Funcionario from './../models/funcionario.json';
+import Historico from './../models/historico.json';
+
+import Ferias from './Forms/Ferias';
+
 // Needed for onTouchTap
 // http://stackoverflow.com/a/34015469/988941
 injectTapEventPlugin();
@@ -57,7 +64,7 @@ class App extends Component {
 				lancamentos: false,
 				historico: false
 			},
-			progress: true,
+			progress: false,
 			filter: false,
 			date: this.props.date.clone(),
 			items: [],
@@ -68,18 +75,15 @@ class App extends Component {
 
 	    this.params = {
 	        TableName: config.table,
-	        IndexName: "cid-index",
+	        IndexName: "type-id-index",
 	        KeyConditionExpression: "#pk = :pk",   
 	        ExpressionAttributeNames: {
-	            "#pk": "cid",
-	            "#f": "id"
+	            "#pk": "type"
 	        },
 	        ExpressionAttributeValues: { 
-	            ":pk": "r:hm.funcionario.ferias",
-	            ":f": "00000000-0000-0000-0000-000000000000"
+	            ":pk": "Ferias"
 	        },
-	        FilterExpression: "#f <> :f",
-	        Projection: 'id, fields',
+	        Projection: 'ALL',
 	        ExclusiveStartKey: null,
 	        Limit: 10
 	    }
@@ -127,9 +131,9 @@ class App extends Component {
 						var addAndSort2 = function(arr, val) {
 						    arr.push(val);
 						    var i = arr.length - 1;
-						    var item = moment(arr[i].fields.inicial.value)
+						    var item = moment(arr[i].inicial)
 				            try {
-							    while (i > 0 && item.diff(moment(arr[i-1].fields.inicial.value)) < 0) {
+							    while (i > 0 && item.diff(moment(arr[i-1].inicial)) < 0) {
 							        arr[i] = arr[i-1];
 							        i -= 1;
 							    }
@@ -189,7 +193,7 @@ class App extends Component {
 		var filter = []
 		var dt = this.state.date.clone().date(day);
 		this.state.items.forEach(function(v, k, a) {
-			if (moment.utc(v.fields.inicial.value).isSame(dt, 'day')) {
+			if (moment.utc(v.inicial).isSame(dt, 'day')) {
 				filter.push(v);
 			}
 		})
@@ -255,34 +259,36 @@ class App extends Component {
 
 					</AppBar>
 
-				    <FormDialog class='hm.funcionario.ferias' open={this.state.open.ferias} onClose={this.onClose.bind(this)} table={config.table} />
+				    {this.state.open.ferias ? (<Ferias id={'f8a11ed2-39b6-4b16-845e-39c17973f8f4'} onClose={this.onClose.bind(this)} table={config.table} />) : (null) }
 
-				    <FormDialog class='org.com.br.empresa' open={this.state.open.empresa} onClose={this.onClose.bind(this)} table={config.table} />
+				    {this.state.open.empresa ? (<FormDialog schema={Empresa} open={this.state.open.empresa} onClose={this.onClose.bind(this)} table={config.table} />) : (null) }
 
-				    <FormDialog class='hm.funcionario' open={this.state.open.funcionario} onClose={this.onClose.bind(this)} table={config.table} />
+				    {this.state.open.funcionario ? (<FormDialog schema={Funcionario} open={this.state.open.funcionario} onClose={this.onClose.bind(this)} table={config.table} />) : (null) }
 
-				    <LancamentoDialog class='hm.funcionario.ferias.historico' open={this.state.open.historico} onClose={this.onClose.bind(this)} table={config.table} label={'Histórico de Férias'} />
+				    {this.state.open.historico ? (<LancamentoDialog schema={Historico} open={this.state.open.historico} onClose={this.onClose.bind(this)} table={config.table} label={'Histórico de Férias'} />) : (null) }
 
-					<LinearProgress mode="indeterminate" style={progress} />
+					{this.state.progress ? (<LinearProgress mode="indeterminate" style={progress} />) : ('') }
 
 					<div className='container' style={style}>
-						<Calendar items={this.state.filtered || this.state.items} today={dt1.clone()} onFilter={this.onFilter.bind(this)} onNext={this.onNext.bind(this)} onPrev={this.onPrev.bind(this)} />
+						<Calendar items={this.state.items} filter={this.state.filtered} today={dt1.clone()} onFilter={this.onFilter.bind(this)} onNext={this.onNext.bind(this)} onPrev={this.onPrev.bind(this)} />
 					</div>
 					
 					<div style={postit}>
 						
 						{this.state.filter ? 
-							(<div style={{textAlign: 'right'}}><Toggle
-							labelPosition="left"
-					      	label={this.state.filter ? 'Filtro ativo ' + this.state.date.format('DD MMM YYYY') : ''}
-					      	onToggle={this.onToggle} 
-					      	style={style.toggle}
-					      	toggled={this.state.filter}
-					      	/></div>) : 
+							(<div style={{textAlign: 'right'}}>
+								<Toggle
+									labelPosition="left"
+							      	label={this.state.filter ? 'Filtro ativo ' + this.state.date.format('DD MMM YYYY') : ''}
+							      	onToggle={this.onToggle} 
+							      	style={style.toggle}
+							      	toggled={this.state.filter}
+					      		/>
+					      	</div>) : 
 					      	(<p></p>)
 					    }
 
-						<PostList date={dt1.clone()} items={this.state.filtered || this.state.items} table={config.table} />
+						<PostList items={this.state.filtered || this.state.items} title={'inicial'} note={'nome'} schema={Ferias} />
 
 					</div>
 

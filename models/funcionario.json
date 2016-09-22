@@ -1,21 +1,19 @@
 {
-    "id": "00000000-0000-0000-0000-000000000000",
+    "type": "Funcionario",
     "label": "Funcionário",
-    "type": "r",
-    "class": "hm.funcionario",
-    "cid": "r:hm.funcionario",
-    "fields": {
-        "empresa": {
+    "fields": [
+        {
             "class": "org.com.br.empresa",
             "label": "Empresa",
             "lang": "pt-BR",
             "required": true,
-            "type": "e",
+            "type": "Empresa",
             "path": "empresa",
+            "text": "nome",
             "cid": "e:org.com.br.empresa:empresa",
             "value": null
         },
-        "matricula": {
+        {
             "class": "id.cod.matricula",
             "label": "Matricula",
             "lang": "pt-BR",
@@ -25,7 +23,7 @@
             "path": "matricula",
             "cid": "a:id.cod.matricula:matricula"
         }, 
-        "pis": {
+        {
             "class": "id.gov.br.pis",
             "label": "PIS",
             "lang": "pt-BR",
@@ -36,7 +34,7 @@
             "path": "pis",
             "cid": "a:id.gov.br.pis:pis"
         }, 
-        "nome": {
+        {
             "class": "id.nom.nome",
             "label": "Nome",
             "lang": "pt-BR",
@@ -45,7 +43,7 @@
             "path": "nome",
             "cid": "a:id.nom.nome:nome"
         }, 
-        "admissao": {
+        {
             "class": "tm.dt.admissao",
             "label": "Data de admissão",
             "lang": "pt-BR",
@@ -54,7 +52,7 @@
             "path": "admissao",
             "cid": "a:tm.dt.admissao:admissao"
         }, 
-        "demissao": {
+        {
             "class": "tm.dt.demissao",
             "label": "Data de demissão",
             "lang": "pt-BR",
@@ -64,5 +62,5 @@
             "cid": "a:tm.dt.demissao:demissao",
             "value": null
         }
-    }
+    ]
 }

@@ -12,15 +12,7 @@ export default class Datetime extends Field {
 		super(props);
 
 		this.state.value = this.props.value === undefined || this.props.value === null || this.props.value.trim() === '' ? moment.utc().format() : this.props.value;
-
 	}
-	/*componentWillMount() {
-		this.state.loc = this.props.loc || null;
-		this.state.mask = this.props.mask || null;
-		this.state.lang = this.props.lang || null;
-		this.state.value = this.state.value || moment.utc().format();
-		console.log('Component will mount: ' + this.state.id + ':' + this.state.type);
-	}*/
 
 	onChangeDate = (event, date) => {
 	    this.setState({

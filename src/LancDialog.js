@@ -54,18 +54,15 @@ export default class LancDialog extends Component {
 
 	    this.params = {
 	        TableName: table,
-	        IndexName: "cid-index",
+	        IndexName: "type-id-index",
 	        KeyConditionExpression: "#pk = :pk",   
 	        ExpressionAttributeNames: {
-	            "#pk": "cid",
-	            "#f": "id"
+	            "#pk": "type"
 	        },
 	        ExpressionAttributeValues: { 
-	            ":pk": 'r:hm.funcionario',
-	            ":f": "00000000-0000-0000-0000-000000000000"
+	            ":pk": 'Funcionario'
 	        },
-	        FilterExpression: "#f <> :f",
-	        Projection: 'id, fields',
+	        Projection: 'ALL',
 	        ExclusiveStartKey: null,
 	        Limit: 10
 	    }
@@ -80,7 +77,7 @@ export default class LancDialog extends Component {
 	            
 	            if (data.Count > 0) {
 	            	data.Items.forEach(function(v, k, a) {
-	            		context.items.push({id: v.id, empresa: 'ALTAMIRA', nome: v.fields.nome.value, status: 'ok', selected: true});
+	            		context.items.push({id: v.id, empresa: 'ALTAMIRA', nome: v.nome, status: 'ok', selected: true});
 	            	})
 	            }
 	            if (data.LastEvaluatedKey) {

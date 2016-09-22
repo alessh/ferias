@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 
-import moment from 'moment';
-
-import FormDialog from './FormDialog';
+import Ferias from './Forms/Ferias';
 
 function randomElement(array) {
     return array[Math.floor(Math.random() * array.length)]
@@ -31,8 +29,7 @@ export default class PostIt extends Component {
 
 		this.state = {
 			open: false,
-			degre: randomElement([2, -2, 2, -2, 2, -2, 2, -2, 2, 2, -2, -2, 2, -2, 2, -2]),
-			date: this.props.date.clone()
+			degre: randomElement([2, -2, 2, -2, 2, -2, 2, -2, 2, 2, -2, -2, 2, -2, 2, -2])
 		}
 
 		this.onOpen = this.onOpen.bind(this);
@@ -55,28 +52,17 @@ export default class PostIt extends Component {
 			'MsTransform': 'rotate(' + this.state.degre + 'deg)',
 			'transform': 'rotate(' + this.state.degre + 'deg)'
 		}
-		var color = '';
-
-		var today = moment.utc();
-
-		if (this.state.date.clone().add(12, 'months') <= today) {
-			color = 'gray';
-		} else if (this.state.date.clone().add(11, 'months') <= today) {
-			color = 'red';
-		} else if (this.state.date <= today) {
-			color = 'yellow';
-		}
 
 		return (
 			
 			<a href='#' onTouchTap={this.onOpen}>
 				<div className="quote-container">
 					<i className="pin"></i>
-					<blockquote className={"note " + color} style={style} >
-						{this.props.date.format('DD/MM/YYYY')}
-						<cite className="author">{toTitleCase(this.props.author)}</cite>
+					<blockquote className={"note " + this.props.color} style={style} >
+						{this.props.title}
+						<cite className="author">{toTitleCase(this.props.note)}</cite>
 					</blockquote>
-					<FormDialog {...this.props} open={this.state.open} onClose={this.onClose.bind(this)} />
+					{ this.state.open ? (<Ferias id={this.props.id} onClose={this.onClose.bind(this)} />) : (null) }
 				</div>
 			</a>
 		);

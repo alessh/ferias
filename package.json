@@ -8,6 +8,8 @@
   "dependencies": {
     "async": "^2.0.1",
     "aws-sdk": "^2.5.5",
+    "formsy-material-ui": "^0.5.0",
+    "formsy-react": "^0.18.1",
     "material-ui": "^0.15.4",
     "moment": "^2.14.1",
     "node-uuid": "^1.4.7",

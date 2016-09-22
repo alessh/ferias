@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Component} from 'react';
 
 import { TextField, CircularProgress } from 'material-ui';
 
@@ -7,17 +7,15 @@ import uuid from 'node-uuid';
 import Field from './Field';
 
 export default class Name extends Field {
-	/*componentWillMount() {
-		this.state.loc = this.props.loc || null;
-		this.state.mask = this.props.mask || null;
-		this.state.lang = this.props.lang || null;
-		console.log('Component will mount: ' + this.state.id + ':' + this.state.type);
-	}*/
 
+	/*onChange(event, index, value) {
+	    this.setState({value: value || event.target.value});
+	    this.props.event.publish('onChange', {path: this.state.path, value: value || event.target.value});
+	}*/
 	render() {
-		const progress = {
+		/*const progress = {
 			visibility: this.state.progress ? 'visible' : 'hidden', position: 'absolute'
-		}
+		}*/
 		return (
 			<div>
 				<TextField 
@@ -28,7 +26,7 @@ export default class Name extends Field {
 					floatingLabelText={this.state.label}
 					floatingLabelFixed={true}
 				/>
-				<CircularProgress size={0.5} style={progress} />
+				{/*<CircularProgress size={0.5} style={progress} />*/}
 			</div>
 		);
 	}

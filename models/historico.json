@@ -1,11 +1,8 @@
 {
-    "id": "00000000-0000-0000-0000-000000000000",
+    "type": "Historico",
     "label": "Histórico de Férias/Dias Descansados",
-    "type": "r",
-    "class": "hm.funcionario.ferias.historico",
-    "cid": "r:hm.funcionario.ferias.historico",
-    "fields": {
-        "inicial": {
+    "fields": [
+        {
             "class": "tm.dt.inicial",
             "label": "Data Inicial",
             "lang": "pt-BR",
@@ -14,7 +11,7 @@
             "path": "inicial",
             "cid": "a:tm.dt.inicial:inicial"
         }, 
-        "final": {
+        {
             "class": "tm.dt.final",
             "label": "Data Final",
             "lang": "pt-BR",
@@ -23,7 +20,7 @@
             "path": "final",
             "cid": "a:tm.dt.final:final"
         }, 
-        "historico": {
+        {
             "class": "char.text",
             "label": "Histórico",
             "lang": "pt-BR",
@@ -33,5 +30,5 @@
             "cid": "a:char.text:historico",
             "value": null
         }
-    }
+    ]
 }
