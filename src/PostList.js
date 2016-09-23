@@ -34,7 +34,7 @@ export default class PostList extends Component {
 				color = 'yellow';
 			}
 
-       		context.items.push(<PostIt key={uuid.v4()} id={v.id} title={title} note={note || '???'} color={color} schema={context.props.schema} />);
+       		context.items.push(<PostIt key={uuid.v4()} id={v.id} title={title} note={note || '???'} color={color} onLoad={context.props.onLoad.bind(this)} />);
       	})
 		return(
 			<div style={style}>

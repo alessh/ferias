@@ -16,8 +16,8 @@ import {
 	MenuItem 
 } from 'material-ui';
 
-//import IconDelete from 'material-ui/svg-icons/action/delete';
-//import IconAdd from 'material-ui/svg-icons/content/add';
+import IconDelete from 'material-ui/svg-icons/action/delete';
+import IconAdd from 'material-ui/svg-icons/content/add';
 import IconSave from 'material-ui/svg-icons/action/done';
 import IconExit from 'material-ui/svg-icons/navigation/close';
 
@@ -245,7 +245,7 @@ export default class Ferias extends Component {
 				>
 
 			    	<AppBar title={'Controle de Férias'} >
-				    	{/*<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}}>
+				    	<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}}>
 							<FloatingActionButton onTouchTap={this.onSave.bind(this)} >
 					      		<IconDelete />
 					    	</FloatingActionButton>
@@ -254,7 +254,7 @@ export default class Ferias extends Component {
 							<FloatingActionButton onTouchTap={this.onSave.bind(this)} >
 					      		<IconAdd />
 					    	</FloatingActionButton>
-					    </div>*/}
+					    </div>
 				    	<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}} >
 							<FloatingActionButton onTouchTap={this.onSave.bind(this)} disabled={!this.state.canSubmit} >
 					      		<IconSave />

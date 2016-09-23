@@ -5,7 +5,7 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import Theme from './Theme';
 import injectTapEventPlugin from 'react-tap-event-plugin';
-import { AppBar, LinearProgress, FloatingActionButton, Toggle } from 'material-ui';
+import { AppBar, LinearProgress, FloatingActionButton, Chip } from 'material-ui';
 import IconHistorico from 'material-ui/svg-icons/notification/event-note';
 import IconFuncionario from 'material-ui/svg-icons/social/person-add';
 import IconEmpresa from 'material-ui/svg-icons/social/location-city';
@@ -16,16 +16,21 @@ import moment from 'moment';
 // app
 import Calendar from './Calendar';
 import PostList from './PostList';
-import FormDialog from './FormDialog';
-import LancamentoDialog from './LancDialog';
+//import FormDialog from './FormDialog';
+//import LancamentoDialog from './LancDialog';
 import './App.css';
 
 //import Ferias from './../models/ferias.json';
-import Empresa from './../models/empresa.json';
-import Funcionario from './../models/funcionario.json';
-import Historico from './../models/historico.json';
+//import Empresa from './../models/empresa.json';
+//import Funcionario from './../models/funcionario.json';
+//import Historico from './../models/historico.json';
 
 import Ferias from './Forms/Ferias';
+import Empresa from './Forms/Empresa';
+//import Funcionario from './Forms/Funcionario';
+import Historico from './Forms/Historico';
+
+import FuncionarioList from './Forms/FuncionarioList';
 
 // Needed for onTouchTap
 // http://stackoverflow.com/a/34015469/988941
@@ -78,17 +83,22 @@ class App extends Component {
 	    this.onNext = this.onNext.bind(this);
 	    this.onPrev = this.onPrev.bind(this); 
 
-	    this.load = this.onLoad.bind(this);
+	    this.onLoad = this.onLoad.bind(this);
+	    this.load = this.load.bind(this);
 
 	}
 
 	componentDidMount() {
-		this.onLoad();
+		this.setState({progress: true}, this.load());
 	}
 
 	onLoad() {
+		this.setState({progress: true}, this.load());
+	}
 
-		this.setState({progress: true});
+	load() {
+
+		console.log('Loading PostIt\'s...');
 
 		this.items = [];
 
@@ -175,7 +185,7 @@ class App extends Component {
 	              	dynamodb.query(context.params, result.bind(context))
 	            } else {
 	            	//context.items.sort(function(a, b){return b-a});
-	            	context.setState({items: context.items, progress: false});
+	            	this.setState({items: context.items, progress: false});
 	              	//console.log('Fim do scan'); 
 	            }
 	        }
@@ -229,7 +239,14 @@ class App extends Component {
 				marginBottom: 16,
 				top: 50,
 				align: 'right'
-			}
+			},
+			chip: {
+				marginRight: 5
+			},
+			wrapper: {
+				marginTop: 50,
+				width: '100%',
+			},
 		}
 		const postit = {
 			display: 'inline-block',
@@ -251,11 +268,11 @@ class App extends Component {
 					    	</FloatingActionButton>
 					    </div>
 
-						<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}}>
+						{/*<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}}>
 							<FloatingActionButton onTouchTap={this.onOpen.bind(this, 'empresa')} >
 					      		<IconEmpresa />
 					    	</FloatingActionButton>
-					    </div>
+					    </div>*/}
 
 						<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}}>
 							<FloatingActionButton onTouchTap={this.onOpen.bind(this, 'funcionario')} >
@@ -271,13 +288,13 @@ class App extends Component {
 
 					</AppBar>
 
-				    {this.state.open.ferias ? (<Ferias id={'f8a11ed2-39b6-4b16-845e-39c17973f8f4'} onClose={this.onClose.bind(this)} table={config.table} />) : (null) }
+				    {this.state.open.ferias ? (<Ferias onClose={this.onClose.bind(this)} table={config.table} />) : (null) }
 
-				    {this.state.open.empresa ? (<FormDialog schema={Empresa} open={this.state.open.empresa} onClose={this.onClose.bind(this)} table={config.table} />) : (null) }
+				    {this.state.open.empresa ? (<Empresa onClose={this.onClose.bind(this)} table={config.table} />) : (null) }
 
-				    {this.state.open.funcionario ? (<FormDialog schema={Funcionario} open={this.state.open.funcionario} onClose={this.onClose.bind(this)} table={config.table} />) : (null) }
+				    {this.state.open.funcionario ? (<FuncionarioList onClose={this.onClose.bind(this)} table={config.table} />) : (null) }
 
-				    {this.state.open.historico ? (<LancamentoDialog schema={Historico} open={this.state.open.historico} onClose={this.onClose.bind(this)} table={config.table} label={'Histórico de Férias'} />) : (null) }
+				    {this.state.open.historico ? (<Historico onClose={this.onClose.bind(this)} table={config.table} />) : (null) }
 
 					{this.state.progress ? (<LinearProgress mode="indeterminate" style={progress} />) : ('') }
 
@@ -288,19 +305,19 @@ class App extends Component {
 					<div style={postit}>
 						
 						{this.state.filter ? 
-							(<div style={{textAlign: 'right'}}>
-								<Toggle
-									labelPosition="left"
-							      	label={this.state.filter ? 'Filtro ativo ' + this.state.date.format('DD MMM YYYY') : ''}
-							      	onToggle={this.onToggle} 
-							      	style={style.toggle}
-							      	toggled={this.state.filter}
-					      		/>
-					      	</div>) : 
-					      	(<p></p>)
+							(<div style={style.wrapper}>
+					      	<Chip
+					          onRequestDelete={this.onToggle.bind(this)}
+					          onTouchTap={this.onToggle.bind(this)}
+					          style={style.chip}
+					        >
+					          {this.state.filter ? 'Filtro ativo ' + this.state.date.format('DD MMM YYYY') : ''}
+					        </Chip></div>
+					      	) : 
+					      	(<div></div>)
 					    }
 
-						<PostList items={this.state.filtered || this.state.items} title={'inicial'} note={'nome'} schema={Ferias} />
+						<PostList items={this.state.filtered || this.state.items} title={'inicial'} note={'nome'} onClose={this.onClose.bind(this)} onLoad={this.onLoad.bind(this)} />
 
 					</div>
 

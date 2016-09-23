@@ -6,7 +6,7 @@ function randomElement(array) {
     return array[Math.floor(Math.random() * array.length)]
 }
 
-function toTitleCase(str)
+function toPrettyCase(str)
 {
     return str.replace(/\w\S*/g, function(txt){
     	switch(txt.toLowerCase()) {
@@ -41,7 +41,7 @@ export default class PostIt extends Component {
 	}
 
 	onClose() {
-		this.setState({open: false});
+		if (this.props.onLoad) this.props.onLoad();
 	}
 
 	render() {
@@ -60,7 +60,7 @@ export default class PostIt extends Component {
 					<i className="pin"></i>
 					<blockquote className={"note " + this.props.color} style={style} >
 						{this.props.title}
-						<cite className="author">{toTitleCase(this.props.note)}</cite>
+						<cite className="author">{toPrettyCase(this.props.note)}</cite>
 					</blockquote>
 					{ this.state.open ? (<Ferias id={this.props.id} onClose={this.onClose.bind(this)} />) : (null) }
 				</div>

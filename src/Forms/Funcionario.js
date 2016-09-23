@@ -16,7 +16,7 @@ import {
 	MenuItem 
 } from 'material-ui';
 
-//import IconDelete from 'material-ui/svg-icons/action/delete';
+import IconDelete from 'material-ui/svg-icons/action/delete';
 //import IconAdd from 'material-ui/svg-icons/content/add';
 import IconSave from 'material-ui/svg-icons/action/done';
 import IconExit from 'material-ui/svg-icons/navigation/close';
@@ -30,8 +30,10 @@ import {
     FormsySelect, 
     FormsyText, 
     //FormsyTime, 
-    FormsyToggle 
+    //FormsyToggle 
 } from 'formsy-material-ui/lib';
+
+import DeleteForm from './DeleteForm';
 
 import 'aws-sdk/dist/aws-sdk';
 const aws = window.AWS;
@@ -42,21 +44,41 @@ aws.config.update({accessKeyId: 'AKIAJROLVHLQQHOE72HA', secretAccessKey: 'th/N/a
 
 const dynamodb = new aws.DynamoDB.DocumentClient();    
 
-export default class Ferias extends Component {
+function toPrettyCase(str)
+{
+    return !str ? '' : str.replace(/\w\S*/g, function(txt){
+    	switch(txt.toLowerCase()) {
+    		case 'da':
+    		case 'do':
+    		case 'de':
+    		case 'e':
+    		case 'das':
+    		case 'dos':
+    			return txt.toLowerCase();
+    		default:
+    			return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    	}
+    });
+}
+
+export default class Funcionario extends Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
-			canSubmit: false,
+			open: false,
 			progress: false,
 		}
 
-		this.onChange = this.onChange.bind(this);
+		//this.onChange = this.onChange.bind(this);
+		this.onOpen = this.onOpen.bind(this);
 	    this.onSave = this.onSave.bind(this);
+	    this.onDelete = this.onDelete.bind(this);
 	    this.onClose = this.onClose.bind(this);
+	    this.onCancel = this.onCancel.bind(this);
 	    this.enableButton = this.enableButton.bind(this);
 	    this.disableButton = this.disableButton.bind(this);
-	    this.submitForm = this.submitForm.bind(this);
+	    this.onSubmit = this.onSubmit.bind(this);
 	    this.notifyFormError = this.notifyFormError.bind(this);
 
 	    this.onLoad = this.onLoad.bind(this);
@@ -70,7 +92,7 @@ export default class Ferias extends Component {
 
 		if (this.props.id) {
 
-			console.log('Carregando Ferias...');
+			console.log('Carregando Funcionario...');
 
 			this.setState({progress: true});
 
@@ -83,7 +105,7 @@ export default class Ferias extends Component {
 		        },
 		        ExpressionAttributeValues: { 
 		        	":pk": this.props.id,
-		            ":sk": 'Ferias'
+		            ":sk": 'Funcionario'
 		        },
 		        ExclusiveStartKey: null,
 		        Limit: 1
@@ -110,9 +132,6 @@ export default class Ferias extends Component {
 							const utc = moment.utc(data.Items[0].inicial);
 							newState.inicial = new Date(utc.year(), utc.month(), utc.date(), utc.toDate().getTimezoneOffset() / 60, 0, 0);
 
-							const utc2 = moment.utc(data.Items[0].final);
-							newState.final = new Date(utc2.year(), utc2.month(), utc2.date(), utc2.toDate().getTimezoneOffset() / 60, 0, 0);
-
 							newState.progress = false;
 
 			            	this.setState(newState);
@@ -127,18 +146,34 @@ export default class Ferias extends Component {
 		}
 	}
 
+	/*onChange(currentValues, isChanged, path) {
+		var newState = this.state;
+		if (path === 'nome') value = toPrettyCase(value);
+		newState[path] = value;
+		this.setState(newState);
+	}*/
+
+	onOpen() {
+		this.setState({open: true});
+	}
+
 	onClose() {
 		this.props.onClose();
 	}
 
-	onChange(path, value) {
-		var newState = this.state;
-		newState[path] = value;
-		this.setState(newState);
-	}
-
 	onSave(callback) {	
 		this.refs.form.submit();
+	}
+
+	onDelete(id) {
+		if (this.props.onDelete)
+			this.props.onDelete(id)
+		else
+			this.setState({open: true});
+	}
+
+	onCancel() {
+		this.setState({open: false});
 	}
 
 	errorMessages= {
@@ -147,19 +182,20 @@ export default class Ferias extends Component {
 		urlError: "Please provide a valid URL",
 	}
 
+	/*
 	styles= {
 		/*paperStyle: {
 			width: 300,
 			margin: 'auto',
 			padding: 20,
-		},*/
+		},
 		switchStyle: {
 			marginBottom: 16,
 		},
-		/*submitStyle: {
+		submitStyle: {
 			marginTop: 32,
-		},*/
-	}
+		},
+	}*/
 
 	enableButton() {
 		this.setState({
@@ -173,7 +209,7 @@ export default class Ferias extends Component {
 		});
 	}
 
-	submitForm(data) {
+	onSubmit(data) {
 		if (this.state.progress) {
 			console.log('request in progress.');
 			return;
@@ -183,34 +219,32 @@ export default class Ferias extends Component {
 
 		//alert(JSON.stringify(data, null, 4));
 
-		var params = {
+		this.params = {
 	        'TableName': table,
 	        'Item': {
 	        	id: this.props.id || uuid.v4(),
-	        	type: 'Ferias',
+	        	type: 'Funcionario',
 	        	empresa: data.empresa,
-	        	nome: data.nome,
+	        	nome: toPrettyCase(data.nome),
 	        	inicial: data.inicial.getTimezoneOffset() > 0 ? moment(data.inicial).subtract(data.inicial.getTimezoneOffset() / 60, 'h').toJSON() : moment(data.inicial).add(data.inicial.getTimezoneOffset() / 60, 'h').toJSON(),
-	        	final: data.final.getTimezoneOffset() > 0 ? moment(data.final).subtract(data.final.getTimezoneOffset() / 60, 'h').toJSON() : moment(data.final).add(data.final.getTimezoneOffset() / 60, 'h').toJSON(),
-	        	dias: data.dias,
-	        	realizado: data.realizado
+	        	situacao: data.situacao
 	        }
 	    }
 
 	    var result = function(err, data) {
 	    	var context = this; 
 	    	if (err) {
-	    		console.log('Erro on create/update.');
+	    		console.log('Erro ao gravar os dados: ' + err);
 	    		alert('Erro ao gravar os dados: ' + err);
 	    	} else {
-	    		console.log('Create/update OK.');
+	    		console.log('Funcionario gravado OK.');
 	    		//alert('Dados gravados com sucesso !');
-	    		if (context.props.onClose) context.props.onClose();
+	    		if (context.props.onSave) context.props.onSave(context.params.Item);
 	    	}
 	    	//this.setState({progress: false});
 	    }
 
-	    dynamodb.put(params, result.bind(this));	
+	    dynamodb.put(this.params, result.bind(this));	
 	}
 
 	notifyFormError(data) {
@@ -218,21 +252,17 @@ export default class Ferias extends Component {
 	}
 
 	render() {
-		let { 
+		/*let { 
 			//paperStyle, 
-			switchStyle, 
+			//switchStyle, 
 			//submitStyle 
-		} = this.styles;
+		} = this.styles;*/
     	let { 
     		wordsError, 
-    		numericError, 
+    		//numericError, 
     		//urlError 
     	} = this.errorMessages;
 
-		const items = [];
-		items.forEach(function(v, k, a) {
-			items.push(<MenuItem key={uuid.v4()} value={v.id} primaryText={v.text} />)
-		})
 		return (
 			<MuiThemeProvider>
 			<div>
@@ -244,13 +274,16 @@ export default class Ferias extends Component {
 					{...this.props} 
 				>
 
-			    	<AppBar title={'Controle de Férias'} >
+			    	<AppBar title={this.props.label} >
+				    	{ this.props.id ? (
+				    		<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}}>
+								<FloatingActionButton onTouchTap={this.onOpen.bind(this)} >
+						      		<IconDelete />
+						    	</FloatingActionButton>
+						    </div>
+						) : (null)}
+
 				    	{/*<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}}>
-							<FloatingActionButton onTouchTap={this.onSave.bind(this)} >
-					      		<IconDelete />
-					    	</FloatingActionButton>
-					    </div>
-				    	<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}}>
 							<FloatingActionButton onTouchTap={this.onSave.bind(this)} >
 					      		<IconAdd />
 					    	</FloatingActionButton>
@@ -272,7 +305,7 @@ export default class Ferias extends Component {
 					<Formsy.Form
 			            onValid={this.enableButton}
 			            onInvalid={this.disableButton}
-			            onValidSubmit={this.submitForm}
+			            onValidSubmit={this.onSubmit}
 			            onInvalidSubmit={this.notifyFormError}
 			            ref='form'
 			          >
@@ -294,21 +327,21 @@ export default class Ferias extends Component {
 			              hintText="Nome do funcionário"
 			              floatingLabelText="Nome do Funcionário"
 			              fullWidth={true} 
-			              value={this.state.nome}
+			              value={toPrettyCase(this.state.nome)}
 			            />          
 			            <FormsyDate
 			              name="inicial"
 			              required
-			              floatingLabelText="Data Inicial"
+			              floatingLabelText="Data Admissão/Data Inicial"
 			              value={this.state.inicial}
 			            />
-			            <FormsyDate
+			            {/*<FormsyDate
 			              name="final"
 			              required
-			              floatingLabelText="Data Final"
+			              floatingLabelText="Data Demissão/Data Final"
 			              value={this.state.final}
 			            />
-			            {/*<FormsyTime
+			            <FormsyTime
 			              name="time"
 			              required
 			              floatingLabelText="Time"
@@ -318,12 +351,22 @@ export default class Ferias extends Component {
 			              label="Do you agree to disagree?"
 			              style={switchStyle}
 			            />*/}
-			            <FormsyToggle
-			              name="realizado"
-			              label="Realizado"
+			            {/*<FormsyToggle
+			              name="demitido"
+			              label="Demitido"
 			              style={switchStyle}
-			              value={this.state.realizado}
-			            />
+			              value={this.state.demitido}
+			            />*/}
+			            <FormsySelect
+			              name="situacao"
+			              required
+			              floatingLabelText="Situação"
+			              value={this.state.situacao}
+			            >
+			              <MenuItem value={'ativo'} primaryText="Ativo" />
+			              <MenuItem value={'afastado'} primaryText="Afastado" />
+			              <MenuItem value={'demitido'} primaryText="Demitido" />
+			            </FormsySelect>
 			            {/*<FormsyRadioGroup name="shipSpeed" defaultSelected="not_light">
 			              <FormsyRadio
 			                value="light"
@@ -349,7 +392,7 @@ export default class Ferias extends Component {
 			              required
 			              hintText="What is your name?"
 			              floatingLabelText="Name"
-			            />*/}
+			            />
 			            <FormsyText
 			              name="dias"
 			              validations="isNumeric"
@@ -358,7 +401,7 @@ export default class Ferias extends Component {
 			              floatingLabelText="Dias de direito"
 			              value={this.state.dias}
 			            />
-			            {/*<FormsyText
+			            <FormsyText
 			              name="url"
 			              validations="isUrl"
 			              validationError={urlError}
@@ -373,6 +416,8 @@ export default class Ferias extends Component {
 			              disabled={!this.state.canSubmit}
 			            />*/}
 			        </Formsy.Form>
+
+			        { this.state.open ? (<DeleteForm id={this.props.id} type={'Funcionario'} label={(<div><p>Tem certeza de excluir este Funcionario ?</p><p>{this.state.nome}</p></div>)} onDelete={this.onDelete.bind(this)} onCancel={this.onCancel.bind(this)} />) : (null) }
 
 				</Dialog>
 			</div>
