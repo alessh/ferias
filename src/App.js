@@ -6,46 +6,29 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import Theme from './Theme';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import { AppBar, LinearProgress, FloatingActionButton, Chip } from 'material-ui';
-import IconHistorico from 'material-ui/svg-icons/notification/event-note';
-import IconFuncionario from 'material-ui/svg-icons/social/person-add';
-import IconEmpresa from 'material-ui/svg-icons/social/location-city';
-import IconFerias from 'material-ui/svg-icons/places/beach-access';
-
-import moment from 'moment';
 
 // app
-import Calendar from './Calendar';
-import PostList from './PostList';
-//import FormDialog from './FormDialog';
-//import LancamentoDialog from './LancDialog';
 import './App.css';
+import Calendar from './Calendar/Calendar';
+import PostList from './PostIt/PostList';
+import Ferias from './Ferias/EditForm';
+import Empresa from './Empresa/CreateForm';
+import Historico from './Historico/CreateForm';
+import Funcionario from './Funcionario/SearchForm';
 
-//import Ferias from './../models/ferias.json';
-//import Empresa from './../models/empresa.json';
-//import Funcionario from './../models/funcionario.json';
-//import Historico from './../models/historico.json';
+// icons
+import IconHistorico from 'material-ui/svg-icons/notification/event-note';
+import IconFuncionario from 'material-ui/svg-icons/social/person-add';
+//import IconEmpresa from 'material-ui/svg-icons/social/location-city';
+import IconFerias from 'material-ui/svg-icons/places/beach-access';
 
-import Ferias from './Forms/Ferias';
-import Empresa from './Forms/Empresa';
-//import Funcionario from './Forms/Funcionario';
-import Historico from './Forms/Historico';
-
-import FuncionarioList from './Forms/FuncionarioList';
+import axios from 'axios';
+import moment from 'moment';
+import uuid from 'node-uuid';
 
 // Needed for onTouchTap
 // http://stackoverflow.com/a/34015469/988941
 injectTapEventPlugin();
-
-import 'aws-sdk/dist/aws-sdk';
-const aws = window.AWS;
-
-aws.config.update({accessKeyId: 'AKIAJROLVHLQQHOE72HA', secretAccessKey: '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','region': 'sa-east-1'});
-
-const dynamodb = new aws.DynamoDB.DocumentClient();
-
-const config = {
-	table: 'altamira'
-}
 
 // This replaces the textColor value on the palette
 // and then update the keys for each component that depends on it.
@@ -73,7 +56,8 @@ class App extends Component {
 			filter: false,
 			date: this.props.date.clone(),
 			items: [],
-			filtered: null
+			filtered: null,
+			form: null
 		}
 
 		this.onOpen = this.onOpen.bind(this);
@@ -84,114 +68,87 @@ class App extends Component {
 	    this.onPrev = this.onPrev.bind(this); 
 
 	    this.onLoad = this.onLoad.bind(this);
-	    this.load = this.load.bind(this);
+	    this.onEdit = this.onEdit.bind(this);
 
 	}
 
 	componentDidMount() {
-		this.setState({progress: true}, this.load());
+		this.setState({progress: true}, this.onLoad());
 	}
+
+	/*onLoad() {
+		this.setState({progress: true}, this.load());
+	}*/
 
 	onLoad() {
-		this.setState({progress: true}, this.load());
+		var _this = this;
+	    this.serverRequest = 
+	      axios
+	        .post("http://sistema/api/rh/ferias/list", {
+	        	page: 1,
+	        	per_page: 100
+	        })
+	        .then(function(result) {   
+
+	        	var items = [];
+
+	        	/*for(var i = 0; i < categories.length; i++){
+    
+					items = items.concat($.map(categories[i].items,function(elem){
+				        return {value:elem.itemId, label:elem.name};
+				    }));
+				}*/
+
+				//var items = result.data.map(funcionario => funcionario.ferias.map(element => element));
+
+
+				var items = result.data.map(function(val) {
+					val.ferias.forEach(function(e, i, a) {
+						e.nome = val.nome;
+					})
+				  return val.ferias;
+				}).reduce(function(pre, cur) {
+				   return pre.concat(cur);
+				}).map(function(e,i) {
+				  return e;
+				});
+
+	        	var addAndSort2 = function(arr, val) {
+				    arr.push(val);
+				    var i = arr.length - 1;
+				    var item = moment(arr[i].aquisicao_inicial)
+		            try {
+					    while (i > 0 && item.diff(moment(arr[i-1].aquisicao_inicial)) < 0) {
+					        arr[i] = arr[i-1];
+					        i -= 1;
+					    }
+				    } catch(err) {
+				    	console.log(err);
+				    }
+				    arr[i] = val;
+				    return arr;
+				}
+
+				var orderItems = [];
+
+	        	result.data.forEach(function(v, k, a) {
+					orderItems = addAndSort2(items, v);	
+				});
+
+	          	_this.setState({
+	            	items: orderItems
+	          	});
+	        })
 	}
 
-	load() {
+	componentWillUnmount() {
+		this.serverRequest.abort();
+	}
 
-		console.log('Loading PostIt\'s...');
+	onEdit(v) {
+		//alert('Edit: ' + v.id + ', ' + v.note);
 
-		this.items = [];
-
-	    this.params = {
-	        TableName: config.table,
-	        IndexName: "type-id-index",
-	        KeyConditionExpression: "#pk = :pk",   
-	        ExpressionAttributeNames: {
-	            "#pk": "type"
-	        },
-	        ExpressionAttributeValues: { 
-	            ":pk": "Ferias"
-	        },
-	        Projection: 'ALL',
-	        ExclusiveStartKey: null,
-	        Limit: 10
-	    }
-
-	    var result = function(err, data) {
-	    	const context = this;
-	        //console.log(data)
-	        if (err) {
-	            console.log("Unable to query. Error:", JSON.stringify(err, null, 2));
-	            context.setState({items: [], progress: false});
-	        } else {
-	            //console.log("Query succeeded.");
-	            
-	            if (data.Count > 0) {
-	            	//console.log(JSON.stringify(data.Items))
-
-	            	data.Items.forEach(function(v, k, a) {
-
-	            		/* outra forma de lista ordenada
-            			var index = function(array, elem, data) {
-						    var low = 0,
-						        high = array.length;
-
-						    while (low < high) {
-						        var mid = (low + high) >>> 1;
-						        var dt = array[mid].fields.inicial.value;
-						        if (moment(dt.value).diff(data) < 0) {
-						        	low = mid + 1;
-						        } else {
-						        	high = mid;
-						        }
-						    }
-						    return low;
-						}
-            			var insert = function(elem, array) {
-            				var data = elem.fields.inicial.value;
-				            if (data) {
-						  		array.splice(index(array, elem, moment(data.value)) + 1, 0, elem);
-						  	}
-						  	return array;
-						}
-	            		//context.items = insert(v, context.items);
-	            		*/
-
-						var addAndSort2 = function(arr, val) {
-						    arr.push(val);
-						    var i = arr.length - 1;
-						    var item = moment(arr[i].inicial)
-				            try {
-							    while (i > 0 && item.diff(moment(arr[i-1].inicial)) < 0) {
-							        arr[i] = arr[i-1];
-							        i -= 1;
-							    }
-						    } catch(err) {
-						    	console.log(err);
-						    }
-						    arr[i] = val;
-						    return arr;
-						}
-						//var date = moment.utc(v.fields.inicial.value);
-
-						//if ((context.state.filter && date.isSame(context.state.date, 'day')) || (date < context.state.date)) {
-							context.items = addAndSort2(context.items, v);	
-						//}
-	            		
-	              	})
-	            }
-	            if (data.LastEvaluatedKey) {
-	              	context.params.ExclusiveStartKey = data.LastEvaluatedKey
-	              	dynamodb.query(context.params, result.bind(context))
-	            } else {
-	            	//context.items.sort(function(a, b){return b-a});
-	            	this.setState({items: context.items, progress: false});
-	              	//console.log('Fim do scan'); 
-	            }
-	        }
-	    }
-
-	    dynamodb.query(this.params, result.bind(this));			
+		this.setState({form: <Ferias id={v.id} onClose={this.onClose.bind(this)} config={this.props.config} />});
 	}
 
 	onOpen(form) {
@@ -257,6 +214,45 @@ class App extends Component {
 			marginTop: '3px',
 			visibility: this.state.progress ? 'visible' : 'hidden'
 		}
+
+		var toPrettyCase = function(str) {
+		    return str.replace(/\w\S*/g, function(txt){
+		    	switch(txt.toLowerCase()) {
+		    		case 'da':
+		    		case 'do':
+		    		case 'de':
+		    		case 'e':
+		    		case 'das':
+		    		case 'dos':
+		    			return txt.toLowerCase();
+		    		default:
+		    			return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+		    	}
+		    });
+		}
+
+		const postList = this.state.items.map(function(v) {
+			var today = moment.utc();
+			var date = moment.utc(v.aquisicao_inicial);
+			var color = '';
+
+			if (date.clone().add(12, 'months').diff(today, 'days') <= 0) {
+				color = 'gray';
+			} else if (date.clone().add(11, 'months').diff(today, 'days') <= 0) {
+				color = 'red';
+			} else if (date.diff(today, 'days') <= 0) {
+				color = 'yellow';
+			}
+
+			return {
+				key: uuid.v4(),
+				id: uuid.v4(),
+				title: date.format('DD/MM/YYYY'),
+    			note: toPrettyCase(v.nome),
+    			color: color
+    		}
+		})
+
 		return (
 			<MuiThemeProvider muiTheme={getMuiTheme(Theme)} >
 				<div>
@@ -288,13 +284,15 @@ class App extends Component {
 
 					</AppBar>
 
-				    {this.state.open.ferias ? (<Ferias onClose={this.onClose.bind(this)} table={config.table} />) : (null) }
+					{this.state.form}
 
-				    {this.state.open.empresa ? (<Empresa onClose={this.onClose.bind(this)} table={config.table} />) : (null) }
+				    {this.state.open.ferias ? (<Ferias onClose={this.onClose.bind(this)} />) : (null) }
 
-				    {this.state.open.funcionario ? (<FuncionarioList onClose={this.onClose.bind(this)} table={config.table} />) : (null) }
+				    {this.state.open.empresa ? (<Empresa onClose={this.onClose.bind(this)} />) : (null) }
 
-				    {this.state.open.historico ? (<Historico onClose={this.onClose.bind(this)} table={config.table} />) : (null) }
+				    {this.state.open.funcionario ? (<Funcionario onClose={this.onClose.bind(this)} />) : (null) }
+
+				    {this.state.open.historico ? (<Historico onClose={this.onClose.bind(this)} />) : (null) }
 
 					{this.state.progress ? (<LinearProgress mode="indeterminate" style={progress} />) : ('') }
 
@@ -317,7 +315,7 @@ class App extends Component {
 					      	(<div></div>)
 					    }
 
-						<PostList items={this.state.filtered || this.state.items} title={'inicial'} note={'nome'} onClose={this.onClose.bind(this)} onLoad={this.onLoad.bind(this)} />
+						<PostList items={this.state.filtered || postList } onClick={this.onEdit.bind(this)} />
 
 					</div>
 

@@ -34,15 +34,9 @@ import {
 } from 'formsy-material-ui/lib';
 
 import DeleteForm from './DeleteForm';
+//import SearchForm from './SearchForm';
 
-import 'aws-sdk/dist/aws-sdk';
-const aws = window.AWS;
-
-const table = 'altamira';
-
-aws.config.update({accessKeyId: 'AKIAJROLVHLQQHOE72HA', secretAccessKey: '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','region': 'sa-east-1'});
-
-const dynamodb = new aws.DynamoDB.DocumentClient();    
+import axios from 'axios';
 
 function toPrettyCase(str)
 {
@@ -67,6 +61,7 @@ export default class Funcionario extends Component {
 
 		this.state = {
 			open: false,
+			search: false,
 			progress: false,
 		}
 
@@ -82,6 +77,7 @@ export default class Funcionario extends Component {
 	    this.notifyFormError = this.notifyFormError.bind(this);
 
 	    this.onLoad = this.onLoad.bind(this);
+
 	}
 
 	componentDidMount() {
@@ -92,12 +88,29 @@ export default class Funcionario extends Component {
 
 		if (this.props.id) {
 
+
+			var _this = this;
+		    this.serverRequest = 
+		      axios
+		        .get("http://sistema/api/rh/ferias/item/" + this.props.id, {
+		        	page: 1,
+		        	per_page: 1
+		        })
+		        .then(function(result) {   
+
+					_this.setState({
+		            	items: result.data
+		          	});
+		        })
+
+		        return;
+
 			console.log('Carregando Funcionario...');
 
 			this.setState({progress: true});
 
 			this.params = {
-		        TableName: table,
+		        TableName: this.props.config.table,
 		        KeyConditionExpression: "#pk = :pk and #sk = :sk",   
 		        ExpressionAttributeNames: {
 		        	"#pk": "id",
@@ -142,6 +155,8 @@ export default class Funcionario extends Component {
 
 		    }
 
+			const dynamodb = new aws.DynamoDB.DocumentClient();    
+
 		    dynamodb.query(this.params, result.bind(this));
 		}
 	}
@@ -174,6 +189,14 @@ export default class Funcionario extends Component {
 
 	onCancel() {
 		this.setState({open: false});
+	}
+
+	onSearch() {
+		this.setState({search: true})
+	}
+
+	onSelect(funcionario) {
+		this.setState({search: false})
 	}
 
 	errorMessages= {
@@ -219,7 +242,7 @@ export default class Funcionario extends Component {
 
 		//alert(JSON.stringify(data, null, 4));
 
-		this.params = {
+		/*this.params = {
 	        'TableName': table,
 	        'Item': {
 	        	id: this.props.id || uuid.v4(),
@@ -229,7 +252,60 @@ export default class Funcionario extends Component {
 	        	inicial: data.inicial.getTimezoneOffset() > 0 ? moment(data.inicial).subtract(data.inicial.getTimezoneOffset() / 60, 'h').toJSON() : moment(data.inicial).add(data.inicial.getTimezoneOffset() / 60, 'h').toJSON(),
 	        	situacao: data.situacao
 	        }
+	    }*/
+
+	    this.id = this.props.id || uuid.v4();
+
+	    this.item = {
+					        	id: this.id,
+					        	type: 'Funcionario',
+					        	empresa: data.empresa,
+					        	nome: toPrettyCase(data.nome),
+					        	inicial: moment.utc(data.inicial).toJSON().substr(0, 10),
+					        	situacao: data.situacao
+					        }
+
+	    this.params = {
+	    	RequestItems: {
+	    		[this.props.config.table]: [
+			    	{  
+		                PutRequest: {
+		                    Item: this.item
+		                }
+		            }
+	    		]
+	    	}
 	    }
+
+	    this.inicial = moment.utc(data.inicial);
+
+	    while(this.inicial.diff(moment.utc(), 'days') < 0) {
+	    	var final = this.inicial.clone().add(1, 'year').subtract(1, 'day');
+
+			this.params.RequestItems.altamira.push({  
+                PutRequest: {
+                    Item: {
+			        	id: uuid.v4(),
+			        	type: 'Ferias',
+			        	funcionario: {
+			        		id: this.id,
+					        type: 'Funcionario',
+					        empresa: data.empresa,
+					        nome: toPrettyCase(data.nome),
+					        inicial: moment.utc(data.inicial).toJSON().substr(0, 10),
+					        situacao: data.situacao
+					    },
+			        	inicial: this.inicial.toJSON().substr(0, 10),
+			        	final: final.toJSON().substr(0, 10),
+			        	dias: 30,
+			        	realizado: false
+			        }
+                }
+            });	
+
+            this.inicial.add(1, 'year');    	
+	    }
+
 
 	    var result = function(err, data) {
 	    	var context = this; 
@@ -239,12 +315,14 @@ export default class Funcionario extends Component {
 	    	} else {
 	    		console.log('Funcionario gravado OK.');
 	    		//alert('Dados gravados com sucesso !');
-	    		if (context.props.onSave) context.props.onSave(context.params.Item);
+	    		if (context.props.onSave) context.props.onSave(context.item);
 	    	}
 	    	//this.setState({progress: false});
 	    }
 
-	    dynamodb.put(this.params, result.bind(this));	
+		const dynamodb = new aws.DynamoDB.DocumentClient();    
+
+	    dynamodb.batchWrite(this.params, result.bind(this));	
 	}
 
 	notifyFormError(data) {
@@ -328,11 +406,12 @@ export default class Funcionario extends Component {
 			              floatingLabelText="Nome do Funcionário"
 			              fullWidth={true} 
 			              value={toPrettyCase(this.state.nome)}
-			            />          
+			            /> 
 			            <FormsyDate
 			              name="inicial"
 			              required
-			              floatingLabelText="Data Admissão/Data Inicial"
+			              floatingLabelText="Data Admissão ou Data Inicial"
+			              hintText="Data Admissão ou Data Inicial"
 			              value={this.state.inicial}
 			            />
 			            {/*<FormsyDate
@@ -361,6 +440,7 @@ export default class Funcionario extends Component {
 			              name="situacao"
 			              required
 			              floatingLabelText="Situação"
+			              hintText="Situação"
 			              value={this.state.situacao}
 			            >
 			              <MenuItem value={'ativo'} primaryText="Ativo" />

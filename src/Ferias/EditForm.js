@@ -13,11 +13,12 @@ import {
 	//TextField, 
 	//SelectField, 
 	//RaisedButton, 
-	MenuItem 
+	MenuItem  
 } from 'material-ui';
 
-import IconDelete from 'material-ui/svg-icons/action/delete';
-import IconAdd from 'material-ui/svg-icons/content/add';
+//import IconDelete from 'material-ui/svg-icons/action/delete';
+//import IconAdd from 'material-ui/svg-icons/content/add';
+//import IconSearch from 'material-ui/svg-icons/action/search';
 import IconSave from 'material-ui/svg-icons/action/done';
 import IconExit from 'material-ui/svg-icons/navigation/close';
 
@@ -27,31 +28,26 @@ import {
 	FormsyDate, 
 	//FormsyRadio, 
 	//FormsyRadioGroup,
-    FormsySelect, 
+    //FormsySelect, 
     FormsyText, 
     //FormsyTime, 
     FormsyToggle 
 } from 'formsy-material-ui/lib';
 
-import 'aws-sdk/dist/aws-sdk';
-const aws = window.AWS;
+import axios from 'axios';
 
-const table = 'altamira';
-
-aws.config.update({accessKeyId: 'AKIAJROLVHLQQHOE72HA', secretAccessKey: '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','region': 'sa-east-1'});
-
-const dynamodb = new aws.DynamoDB.DocumentClient();    
-
-export default class Ferias extends Component {
+export default class Form extends Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
 			canSubmit: false,
 			progress: false,
+			funcionarios: [],
 		}
 
-		this.onChange = this.onChange.bind(this);
+		//this.onStartDateChange = this.onStartDateChange.bind(this);
+		//this.onEndDateChange = this.onEndDateChange.bind(this);
 	    this.onSave = this.onSave.bind(this);
 	    this.onClose = this.onClose.bind(this);
 	    this.enableButton = this.enableButton.bind(this);
@@ -60,22 +56,114 @@ export default class Ferias extends Component {
 	    this.notifyFormError = this.notifyFormError.bind(this);
 
 	    this.onLoad = this.onLoad.bind(this);
+
 	}
 
 	componentDidMount() {
 		this.onLoad();
 	}
 
-	onLoad() {
+	onLoad(load) {
 
 		if (this.props.id) {
+
+			var _this = this;
+		    this.serverRequest = 
+		      axios
+		        .get("http://sistema/api/rh/ferias/item/" + _this.props.id, {
+		        	page: 1,
+		        	per_page: 1
+		        })
+		        .then(function(result) {   
+
+					_this.setState(result.data);
+		        })
+		        .cath(function(err) {
+		        	console.log(err);
+		        })
+
+		}
+
+       	return;
+
+		/*this.funcionarios = [];
+		this.ferias = {};
+
+		if (load === 'funcionarios') {
+
+			console.log('Carregando Funcionarios...');
+
+			this.setState({progress: true});
+
+			this.params = {
+		        TableName: this.props.config.table,
+		        IndexName: 'type-id-index',
+		        KeyConditionExpression: "#pk = :pk",   
+		        ExpressionAttributeNames: {
+		        	"#pk": "type"
+		        },
+		        ExpressionAttributeValues: { 
+		        	":pk": 'Funcionario'
+		        },
+		        Projection: 'id, nome',
+		        ExclusiveStartKey: this.state.LastEvaluatedKey || null,
+		        Limit: 10
+		    }
+
+			var result = function(err, data) {
+				const context = this;
+
+		        if (err) {
+		            console.log("Unable to query for Form Definition. Error:", JSON.stringify(err, null, 2));
+		        } else {
+		            //console.log("Query for Form Definition succeeded.");
+		            
+		            if (data.Count > 0) {
+		              	console.log('Found records: ' + data.Count); 
+
+		              	data.Items.forEach(function(v, k, a) {
+
+							var addAndSort = function(arr, val) {
+							    arr.push(val);
+							    var i = arr.length - 1;
+							    var item = arr[i].nome
+					            try {
+								    while (i > 0 && item <= arr[i-1].nome) {
+								        arr[i] = arr[i-1];
+								        i -= 1;
+								    }
+							    } catch(err) {
+							    	console.log(err);
+							    }
+							    arr[i] = val;
+							    return arr;
+							}
+
+							context.funcionarios = addAndSort(context.funcionarios, v);	
+						})
+
+		            }
+		            if (data.LastEvaluatedKey && context.items.length < context.params.Limit) {
+		              	context.params.ExclusiveStartKey = data.LastEvaluatedKey;
+		              	dynamodb.query(context.params, result.bind(context))
+		            } else {
+		            	this.onLoad('ferias').bind(context);
+		            }
+		        }
+
+		    }
+
+		    dynamodb.query(this.params, result.bind(this));
+		
+
+		} else if (load === 'ferias1' && this.props.id) {*/
 
 			console.log('Carregando Ferias...');
 
 			this.setState({progress: true});
 
 			this.params = {
-		        TableName: table,
+		        TableName: this.props.config.table,
 		        KeyConditionExpression: "#pk = :pk and #sk = :sk",   
 		        ExpressionAttributeNames: {
 		        	"#pk": "id",
@@ -94,6 +182,7 @@ export default class Ferias extends Component {
 		        //console.log(data)
 		        if (err) {
 		            console.log("Unable to query for Form Definition. Error:", JSON.stringify(err, null, 2));
+		            this.setState({progress: false});
 		        } else {
 		            //console.log("Query for Form Definition succeeded.");
 		            
@@ -108,10 +197,10 @@ export default class Ferias extends Component {
 					      	})
 
 							const utc = moment.utc(data.Items[0].inicial);
-							newState.inicial = new Date(utc.year(), utc.month(), utc.date(), utc.toDate().getTimezoneOffset() / 60, 0, 0);
+							newState.inicial = new Date(utc.year(), utc.month(), utc.date(), 0, 0, 0);
 
 							const utc2 = moment.utc(data.Items[0].final);
-							newState.final = new Date(utc2.year(), utc2.month(), utc2.date(), utc2.toDate().getTimezoneOffset() / 60, 0, 0);
+							newState.final = new Date(utc2.year(), utc2.month(), utc2.date(), 0, 0, 0);
 
 							newState.progress = false;
 
@@ -123,22 +212,38 @@ export default class Ferias extends Component {
 
 		    }
 
+			const dynamodb = new aws.DynamoDB.DocumentClient();    
+
 		    dynamodb.query(this.params, result.bind(this));
-		}
+		/*}*/
 	}
 
 	onClose() {
 		this.props.onClose();
 	}
 
-	onChange(path, value) {
-		var newState = this.state;
-		newState[path] = value;
-		this.setState(newState);
+	/*onStartDateChange(n, date) {
+		var inicial = moment.utc(date);
+		var final = moment.utc(this.refs.form.inputs[2].getValue());
+		this.refs.form.inputs[4].setState({value: final.diff(inicial, 'days')});
 	}
+
+	onEndDateChange(n, date) {
+		var inicial = moment.utc(this.refs.form.inputs[1].getValue());
+		var final = moment.utc(date);
+		this.refs.form.inputs[4].setState({value: final.diff(inicial, 'days')});
+	}*/
 
 	onSave(callback) {	
 		this.refs.form.submit();
+	}
+
+	onSearch() {
+		this.setState({search: true});
+	}
+
+	onSelect() {
+		this.setState({search: false});
 	}
 
 	errorMessages= {
@@ -184,14 +289,14 @@ export default class Ferias extends Component {
 		//alert(JSON.stringify(data, null, 4));
 
 		var params = {
-	        'TableName': table,
+	        'TableName': this.props.config.table,
 	        'Item': {
 	        	id: this.props.id || uuid.v4(),
 	        	type: 'Ferias',
 	        	empresa: data.empresa,
-	        	nome: data.nome,
-	        	inicial: data.inicial.getTimezoneOffset() > 0 ? moment(data.inicial).subtract(data.inicial.getTimezoneOffset() / 60, 'h').toJSON() : moment(data.inicial).add(data.inicial.getTimezoneOffset() / 60, 'h').toJSON(),
-	        	final: data.final.getTimezoneOffset() > 0 ? moment(data.final).subtract(data.final.getTimezoneOffset() / 60, 'h').toJSON() : moment(data.final).add(data.final.getTimezoneOffset() / 60, 'h').toJSON(),
+	        	funcionario: data.funcionario,
+	        	inicial: moment.utc(data.inicial).toJSON().substr(0, 10),
+	        	final: moment.utc(data.final).toJSON().substr(0, 10),
 	        	dias: data.dias,
 	        	realizado: data.realizado
 	        }
@@ -209,6 +314,8 @@ export default class Ferias extends Component {
 	    	}
 	    	//this.setState({progress: false});
 	    }
+		
+		const dynamodb = new aws.DynamoDB.DocumentClient();    
 
 	    dynamodb.put(params, result.bind(this));	
 	}
@@ -233,6 +340,12 @@ export default class Ferias extends Component {
 		items.forEach(function(v, k, a) {
 			items.push(<MenuItem key={uuid.v4()} value={v.id} primaryText={v.text} />)
 		})
+
+		const funcionarios = [];
+		this.state.funcionarios.forEach(function(v, k, a) {
+			funcionarios.push(<MenuItem key={uuid.v4()} value={v} primaryText={v.nome} />)
+		})
+
 		return (
 			<MuiThemeProvider>
 			<div>
@@ -245,7 +358,7 @@ export default class Ferias extends Component {
 				>
 
 			    	<AppBar title={'Controle de Férias'} >
-				    	<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}}>
+				    	{/*<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}}>
 							<FloatingActionButton onTouchTap={this.onSave.bind(this)} >
 					      		<IconDelete />
 					    	</FloatingActionButton>
@@ -254,7 +367,7 @@ export default class Ferias extends Component {
 							<FloatingActionButton onTouchTap={this.onSave.bind(this)} >
 					      		<IconAdd />
 					    	</FloatingActionButton>
-					    </div>
+					    </div>*/}
 				    	<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}} >
 							<FloatingActionButton onTouchTap={this.onSave.bind(this)} disabled={!this.state.canSubmit} >
 					      		<IconSave />
@@ -276,33 +389,46 @@ export default class Ferias extends Component {
 			            onInvalidSubmit={this.notifyFormError}
 			            ref='form'
 			          >
-			          	<FormsySelect
+			          	{/*<FormsySelect
 			              name="empresa"
 			              required
 			              floatingLabelText="Empresa"
 			              value={this.state.empresa}
+			              fullWidth={true}
 			            >
 			              <MenuItem value={'Altamira'} primaryText="Altamira" />
 			              <MenuItem value={'Tecnequip'} primaryText="Tecnequip" />
 			              <MenuItem value={'Proalta'} primaryText="Proalta" />
-			            </FormsySelect>
+			            </FormsySelect>*/}
 			          	<FormsyText
-			              name="nome"
+			              name="funcionario"
 			              validations="isWords"
 			              validationError={wordsError}
 			              required
+			              readOnly
 			              hintText="Nome do funcionário"
 			              floatingLabelText="Nome do Funcionário"
 			              fullWidth={true} 
-			              value={this.state.nome}
-			            />          
+			              value={this.state.funcionario ? this.state.funcionario.nome : ''}
+			            />
+			            {/*<FormsySelect
+			              name="funcionario"
+			              required
+			              floatingLabelText="Funcionário"
+			              value={this.state.funcionario}
+			              fullWidth={true}
+			            >
+			              {funcionarios}
+			            </FormsySelect>  */}
 			            <FormsyDate
+			              key="inicial"
 			              name="inicial"
 			              required
 			              floatingLabelText="Data Inicial"
 			              value={this.state.inicial}
 			            />
 			            <FormsyDate
+			              key="final"
 			              name="final"
 			              required
 			              floatingLabelText="Data Final"
@@ -352,6 +478,7 @@ export default class Ferias extends Component {
 			            />*/}
 			            <FormsyText
 			              name="dias"
+			              required
 			              validations="isNumeric"
 			              validationError={numericError}
 			              hintText="Dias de direito"

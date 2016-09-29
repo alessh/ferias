@@ -3,15 +3,21 @@
   "version": "0.0.1",
   "private": true,
   "devDependencies": {
-    "react-scripts": "0.3.1"
+    "enzyme": "^2.4.1",
+    "react-addons-test-utils": "^15.3.2",
+    "react-dom": "^15.3.2",
+    "react-scripts": "0.3.1",
+    "sinon": "^1.17.6"
   },
   "dependencies": {
     "async": "^2.0.1",
     "aws-sdk": "^2.5.5",
+    "axios": "^0.14.0",
     "formsy-material-ui": "^0.5.0",
     "formsy-react": "^0.18.1",
     "material-ui": "^0.15.4",
     "moment": "^2.14.1",
+    "mongodb": "^2.2.10",
     "node-uuid": "^1.4.7",
     "react": "^15.3.1",
     "react-dom": "^15.3.1",

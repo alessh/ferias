@@ -37,17 +37,12 @@ import {
     //FormsyToggle 
 } from 'formsy-material-ui/lib';
 
-import Funcionario from './Funcionario';
-import FuncionarioItem from './FuncionarioItem';
+import New from './New';
+import FoundItems from './FoundItems';
 
 import 'aws-sdk/dist/aws-sdk';
+
 const aws = window.AWS;
-
-const table = 'altamira';
-
-aws.config.update({accessKeyId: 'AKIAJROLVHLQQHOE72HA', secretAccessKey: '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','region': 'sa-east-1'});
-
-const dynamodb = new aws.DynamoDB.DocumentClient();    
 
 function toPrettyCase(str)
 {
@@ -66,7 +61,7 @@ function toPrettyCase(str)
     });
 }
 
-export default class FuncionarioList extends Component {
+export default class List extends Component {
 	constructor(props) {
 		super(props);
 
@@ -87,6 +82,8 @@ export default class FuncionarioList extends Component {
 	    this.onClose = this.onClose.bind(this);
 	    this.onSave = this.onSave.bind(this);
 	    this.onDelete = this.onDelete.bind(this);
+
+		aws.config.update({accessKeyId: this.props.config.accessKeyId, secretAccessKey: this.props.config.secretAccessKey, region: this.props.config.region});
 	}
 
 	componentDidMount() {
@@ -100,7 +97,7 @@ export default class FuncionarioList extends Component {
 		this.setState({progress: true});
 
 		this.params = {
-	        TableName: table,
+	        TableName: this.props.config.table,
 	        IndexName: 'type-id-index',
 	        KeyConditionExpression: "#pk = :pk",   
 	        ExpressionAttributeNames: {
@@ -162,6 +159,8 @@ export default class FuncionarioList extends Component {
 	        }
 
 	    }
+
+		const dynamodb = new aws.DynamoDB.DocumentClient();    
 
 	    dynamodb.query(this.params, result.bind(this));
 	}
@@ -292,7 +291,7 @@ export default class FuncionarioList extends Component {
 
 	    			{ this.state.open ? 
 	    				(
-	    					<Funcionario onClose={this.onClose.bind(this)} onSave={this.onSave.bind(this)} onDelete={this.onDelete.bind(this)} label={'Novo Funcionário'} />
+	    					<New onClose={this.onClose.bind(this)} onSave={this.onSave.bind(this)} onDelete={this.onDelete.bind(this)} label={'Novo Funcionário'} />
 	    				) : (<p></p>)
 	    			}
 

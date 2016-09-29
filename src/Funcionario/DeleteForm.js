@@ -38,13 +38,8 @@ import {
 //import FuncionarioItem from './FuncionarioItem';
 
 import 'aws-sdk/dist/aws-sdk';
+
 const aws = window.AWS;
-
-const table = 'altamira';
-
-aws.config.update({accessKeyId: 'AKIAJROLVHLQQHOE72HA', secretAccessKey: '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','region': 'sa-east-1'});
-
-const dynamodb = new aws.DynamoDB.DocumentClient();    
 
 export default class Ferias extends Component {
 	constructor(props) {
@@ -56,6 +51,8 @@ export default class Ferias extends Component {
 
 	    this.onDelete = this.onDelete.bind(this);
 	    this.onCancel = this.onCancel.bind(this);
+
+	    aws.config.update({accessKeyId: this.props.config.accessKeyId, secretAccessKey: this.props.config.secretAccessKey, region: this.props.config.region});
 	}
 
 	onDelete() {
@@ -65,7 +62,7 @@ export default class Ferias extends Component {
 		this.setState({progress: true});
 
 		this.params = {
-	        TableName: table,
+	        TableName: this.props.config.table,
 	        Key: {
 	        	id: this.props.id,
 	        	type: this.props.type
@@ -82,6 +79,8 @@ export default class Ferias extends Component {
 	        }
 
 	    }
+
+		const dynamodb = new aws.DynamoDB.DocumentClient();    
 
 	    dynamodb.delete(this.params, result.bind(this));
 	}
