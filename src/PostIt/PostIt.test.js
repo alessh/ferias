@@ -15,14 +15,12 @@ describe("PostIt tests", function() {
 	//let callback = sinon.spy(window, 'addEventListener');
 	let callback, wrapper;
 
-	const item = { id: 'Ax04.D3m1', color: 'red', date: '2016-01-01', author: 'ingrid dos santos alves' };
+	const item = { id: 'Ax04.D3m1', color: 'red', date: '2016-01-01', author: 'Ingrid dos Santos Alves' };
 
   	beforeEach(() => {
   		callback = sinon.spy();
     	wrapper = shallow(
-	      <PostIt onClick={callback} id={item.id} color={item.color} title={item.date} note={item.author} >
-	      	<div id='mockChildren' />
-	      </PostIt>
+	      <PostIt onClick={callback} id={item.id} color={item.color} title={item.date} note={item.author} />
 	    );
   	});
 
@@ -33,27 +31,24 @@ describe("PostIt tests", function() {
     	callback = null;
   	});
 
-	it('pretty case', () => {
-	  expect(wrapper.find('cite').first().text()).toEqual('Ingrid dos Santos Alves');
+	it('check postIt note text', () => {
+	  	expect(wrapper.find('cite').first().text()).toEqual(item.author);
 	});	
 
-	it('check title', () => {
-	  expect(wrapper.find('span').first().text()).toEqual('2016-01-01');
+	it('check postIt title', () => {
+	  	expect(wrapper.find('span').first().text()).toEqual(item.date);
 	});	
 
-	it('check color', () => {
-	  expect(wrapper.find('blockquote').hasClass(item.color)).toEqual(true);
+	it('check postIt color', () => {
+	  	expect(wrapper.find('blockquote').hasClass(item.color)).toEqual(true);
 	});	
 
-	it('check onClick', () => {
+	it('check postIt onClick callback', () => {
+
 		expect(callback.callCount).toEqual(0);
-	    expect(wrapper.state('focus')).toEqual(false);
-	    expect(wrapper.find('#mockChildren').length).toEqual(0);
 
 	    wrapper.find('a').first().simulate('touchTap');
 
-	    expect(wrapper.find('#mockChildren').length).toEqual(1);
-	    expect(wrapper.state('focus')).toEqual(true);
 	    expect(callback.callCount).toEqual(1);
 
 	});
