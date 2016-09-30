@@ -52,7 +52,7 @@ body {
 }
 
 .container {
-  min-width: 400px;
+  min-width: 420px;
   width: 35%;
   vertical-align: top;
   display: inline-block;
@@ -63,14 +63,6 @@ body {
 /********************* calendar *********************/
 .calendar {
   min-width: 360px;  
-  /*border: 1px dashed red;*/
-}
-
-.today {  
-  text-align: center;
-  font-size: 2.3em;
-  font-weight: 400;
-  line-height: 20px; 
   /*border: 1px dashed red;*/
 }
 

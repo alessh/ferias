@@ -3,13 +3,13 @@ import injectTapEventPlugin from 'react-tap-event-plugin';
 import { shallow, mount, render } from 'enzyme';
 import sinon from 'sinon';
 
-import PostIt from './PostIt';
+import Calendar from './Calendar';
 
 // Needed for onTouchTap
 // http://stackoverflow.com/a/34015469/988941
 injectTapEventPlugin();
 
-describe("PostIt tests", function() {
+describe("Calendar tests", function() {
 	let wrapper;
 
 	let onClick = sinon.spy();
@@ -18,26 +18,26 @@ describe("PostIt tests", function() {
 
   	beforeEach(() => {
     	wrapper = shallow(
-	      <PostIt id={props.id} title={props.date} note={props.author} color={props.color} onClick={onClick} />
+	      <PostIt onClick={onClick} {...props} />
 	    );
   	});
 
   	afterEach(() => {
   	});
 
-	it('check postIt note text', () => {
+	it('check Calendar note text', () => {
 	  	expect(wrapper.find('cite').first().text()).toEqual(props.author);
 	});	
 
-	it('check postIt title', () => {
+	it('check Calendar title', () => {
 	  	expect(wrapper.find('span').first().text()).toEqual(props.date);
 	});	
 
-	it('check postIt color', () => {
+	it('check Calendar color', () => {
 	  	expect(wrapper.find('blockquote').hasClass(props.color)).toEqual(true);
 	});	
 
-	it('check postIt onClick callback', () => {
+	it('check Calendar onClick callback', () => {
 		expect(onClick.callCount).toEqual(0);
 	    wrapper.find('a').first().simulate('touchTap');
 	    expect(onClick.callCount).toEqual(1);

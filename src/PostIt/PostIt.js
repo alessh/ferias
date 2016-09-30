@@ -14,14 +14,14 @@ export default class PostIt extends Component {
 	}
 
 	render() {
+		const degre = [2, -2, 2, -2, 2, -2, 2, -2, 2, 2, -2, -2, 2, -2, 2, -2][Math.floor(Math.random() * 16)];
 		const style = {
-			/* webpack autoprefixer should do this for us:
-			'WebkitTransform': 'rotate(' + this.state.degre + 'deg)',
-			'MozTransform': 'rotate(' + this.state.degre + 'deg)',
-			'OTransform': 'rotate(' + this.state.degre + 'deg)',
-			'MsTransform': 'rotate(' + this.state.degre + 'deg)',
-			'transform': 'rotate(' + this.state.degre + 'deg)',	*/
-			'transform': 'rotate(' + [2, -2, 2, -2, 2, -2, 2, -2, 2, 2, -2, -2, 2, -2, 2, -2][Math.floor(Math.random() * 16)] + 'deg)'
+			'WebkitTransform': 'rotate(' + degre + 'deg)',
+			'MozTransform': 'rotate(' + degre + 'deg)',
+			'OTransform': 'rotate(' + degre + 'deg)',
+			'MsTransform': 'rotate(' + degre + 'deg)',
+			'transform': 'rotate(' + degre + 'deg)',
+			'transform': 'rotate(' + degre + 'deg)'
 		}
 
 		return (

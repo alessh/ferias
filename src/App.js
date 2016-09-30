@@ -16,6 +16,8 @@ import Empresa from './Empresa/CreateForm';
 import Historico from './Historico/CreateForm';
 import Funcionario from './Funcionario/SearchForm';
 
+import Today from './Calendar/Today';
+
 // icons
 import IconHistorico from 'material-ui/svg-icons/notification/event-note';
 import IconFuncionario from 'material-ui/svg-icons/social/person-add';
@@ -25,6 +27,8 @@ import IconFerias from 'material-ui/svg-icons/places/beach-access';
 import axios from 'axios';
 import moment from 'moment';
 import uuid from 'node-uuid';
+
+import postList from './PostIt/fakeList.json';
 
 // Needed for onTouchTap
 // http://stackoverflow.com/a/34015469/988941
@@ -54,7 +58,7 @@ class App extends Component {
 			},
 			progress: false,
 			filter: false,
-			date: this.props.date.clone(),
+			date: moment.utc(),
 			items: [],
 			filtered: null,
 			form: null
@@ -139,6 +143,9 @@ class App extends Component {
 	            	items: orderItems
 	          	});
 	        })
+	        .catch(function(err) {
+	        	alert(err);
+	        })
 	}
 
 	componentWillUnmount() {
@@ -207,8 +214,7 @@ class App extends Component {
 		}
 		const postit = {
 			display: 'inline-block',
-			width: '50%',
-			padding: '20px'
+			width: '50%'
 		}
 		const progress = {
 			marginTop: '3px',
@@ -231,7 +237,12 @@ class App extends Component {
 		    });
 		}
 
-		const postList = this.state.items.map(function(v) {
+		const postIts = postList.map(function(p) {
+			p.note = toPrettyCase(p.note);
+
+			return p;
+		})
+		/*const postList = this.state.items.map(function(v) {
 			var today = moment.utc();
 			var date = moment.utc(v.aquisicao_inicial);
 			var color = '';
@@ -251,7 +262,7 @@ class App extends Component {
     			note: toPrettyCase(v.nome),
     			color: color
     		}
-		})
+		})*/
 
 		return (
 			<MuiThemeProvider muiTheme={getMuiTheme(Theme)} >
@@ -296,8 +307,10 @@ class App extends Component {
 
 					{this.state.progress ? (<LinearProgress mode="indeterminate" style={progress} />) : ('') }
 
+					<Today date={dt1.clone()} today={true} onNext={this.onNext.bind(this)} onPrev={this.onPrev.bind(this)} />
+
 					<div className='container' style={style}>
-						<Calendar items={this.state.items} filter={this.state.filtered} today={dt1.clone()} onFilter={this.onFilter.bind(this)} onNext={this.onNext.bind(this)} onPrev={this.onPrev.bind(this)} />
+						<Calendar items={this.state.items} filter={this.state.filtered} date={dt1.clone()} onFilter={this.onFilter.bind(this)} onNext={this.onNext.bind(this)} onPrev={this.onPrev.bind(this)} />
 					</div>
 					
 					<div style={postit}>
@@ -311,11 +324,11 @@ class App extends Component {
 					        >
 					          {this.state.filter ? 'Filtro ativo ' + this.state.date.format('DD MMM YYYY') : ''}
 					        </Chip></div>
-					      	) : 
-					      	(<div></div>)
+					      	) : null
+					      	
 					    }
 
-						<PostList items={this.state.filtered || postList } onClick={this.onEdit.bind(this)} />
+						<PostList items={this.state.filtered || postIts } onClick={this.onEdit.bind(this)} />
 
 					</div>
 
