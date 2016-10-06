@@ -3,9 +3,6 @@ import React, { Component } from 'react';
 import { ListItem } from 'material-ui';
 
 import IconEdit from 'material-ui/svg-icons/content/create';
-//import IconAdd from 'material-ui/svg-icons/content/add';
-//import IconSave from 'material-ui/svg-icons/action/done';
-//import IconExit from 'material-ui/svg-icons/navigation/close';
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
@@ -14,44 +11,28 @@ import {
 	AppBar, 
 	LinearProgress, 
 	FloatingActionButton, 
-	//TextField, 
-	//SelectField, 
-	//RaisedButton, 
-	//MenuItem,
 	List,
-	//ListItem,
 	FlatButton
 } from 'material-ui';
 
-//import IconDelete from 'material-ui/svg-icons/action/delete';
 import IconAdd from 'material-ui/svg-icons/content/add';
-//import IconSave from 'material-ui/svg-icons/action/done';
 import IconSearch from 'material-ui/svg-icons/action/search';
 import IconExit from 'material-ui/svg-icons/navigation/close';
 
 import Formsy from 'formsy-react';
 import { 
-	//FormsyCheckbox, 
-	//FormsyDate, 
-	//FormsyRadio, 
-	//FormsyRadioGroup,
-    //FormsySelect, 
     FormsyText, 
-    //FormsyTime, 
-    //FormsyToggle 
 } from 'formsy-material-ui/lib';
 
 import CreateForm from './CreateForm';
 import EditForm from './EditForm';
 
 import uuid from 'node-uuid';
-import 'aws-sdk/dist/aws-sdk';
-
-const aws = window.AWS;
+import axios from 'axios';
 
 function toPrettyCase(str)
 {
-    return str.replace(/\w\S*/g, function(txt){
+    return str ? str.replace(/\w\S*/g, function(txt){
     	switch(txt.toLowerCase()) {
     		case 'da':
     		case 'do':
@@ -63,7 +44,7 @@ function toPrettyCase(str)
     		default:
     			return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
     	}
-    });
+    }) : '';
 }
 
 class Item extends Component {
@@ -78,8 +59,6 @@ class Item extends Component {
 		this.onClose = this.onClose.bind(this);
 		this.onSave = this.onSave.bind(this);
 		this.onDelete = this.onDelete.bind(this);
-
-		aws.config.update({accessKeyId: this.props.config.accessKeyId, secretAccessKey: this.props.config.secretAccessKey, region: this.props.config.region});
 	}
 	
 	onOpen() {
@@ -115,8 +94,7 @@ export default class Search extends Component {
 			open: false,
 			progress: false,
 			nome: '',
-			items: [],
-			LastEvaluatedKey: null
+			items: []
 		}
 
 	    this.onChange = this.onChange.bind(this);
@@ -130,82 +108,27 @@ export default class Search extends Component {
 	    this.onDelete = this.onDelete.bind(this);
 	}
 
-	componentDidMount() {
-		//this.onSearch();
-	}
-
 	onSearch() {
-
-		console.log('Carregando Funcionarios...');
+		if (this.state.progress) {
+			console.log('Requisição pendente, aguarde...');
+			return;
+		}
 
 		this.setState({progress: true});
 
-		this.params = {
-	        TableName: this.props.config.table,
-	        IndexName: 'type-id-index',
-	        ExpressionAttributeNames: {
-	        	"#pk": "type",
-	        	"#nm": "nome"
-	        },
-	        ExpressionAttributeValues: { 
-	        	":pk": 'Funcionario',
-	        	":nm": toPrettyCase(this.state.nome)
-	        },
-	        FilterExpression: '#pk = :pk and begins_with(#nm, :nm)',
-	        Projection: 'id, nome',
-	        ExclusiveStartKey: this.state.LastEvaluatedKey || null,
-	        Limit: 5
-	    }
+	    this.serverRequest = 
+	      axios
+	        .post("http://sistema/api/v2/rh/funcionarios", {nome: toPrettyCase(this.refs.nome.state.value)})
+	        .then(function(result) {   
 
-	    this.items = this.state.LastEvaluatedKey ? this.state.items : [];
+	        	this.setState({items: result.data, progress: false});
 
-		var result = function(err, data) {
-			const context = this;
+	        }.bind(this))
+	        .catch(function(err) {
+	        	this.setState({progress: false});
+	        	alert(err);
+	        }.bind(this))    
 
-	        if (err) {
-	            console.log("Unable to query for Form Definition. Error:", JSON.stringify(err, null, 2));
-	        } else {
-	            //console.log("Query for Form Definition succeeded.");
-	            
-	            if (data.Count > 0) {
-	              	console.log('Found records: ' + data.Count); 
-
-	              	data.Items.forEach(function(v, k, a) {
-
-						var addAndSort = function(arr, val) {
-						    arr.push(val);
-						    var i = arr.length - 1;
-						    var item = arr[i].nome
-				            try {
-							    while (i > 0 && item <= arr[i-1].nome) {
-							        arr[i] = arr[i-1];
-							        i -= 1;
-							    }
-						    } catch(err) {
-						    	console.log(err);
-						    }
-						    arr[i] = val;
-						    return arr;
-						}
-
-						context.items = addAndSort(context.items, v);	
-					})
-
-	            }
-	            if (data.LastEvaluatedKey && context.items.length < context.params.Limit) {
-	              	context.params.ExclusiveStartKey = data.LastEvaluatedKey;
-	              	context.dynamodb.query(context.params, result.bind(context))
-	            	this.setState({LastEvaluatedKey: data.LastEvaluatedKey});
-	            } else {
-	            	this.setState({items: context.items, progress: false, LastEvaluatedKey: data.LastEvaluatedKey});
-	            }
-	        }
-
-	    }
-
-		this.dynamodb = new aws.DynamoDB.DocumentClient();    
-
-	    this.dynamodb.scan(this.params, result.bind(this));
 	}
 
 	onDone() {
@@ -222,7 +145,7 @@ export default class Search extends Component {
 
 	onSave(value) {
 		var index = this.state.items.findIndex(function(e, i ,a) {
-			return e.id === value.id;
+			return e._id === value._id;
 		})
 		if (index >= 0) {
 			var items = this.state.items;
@@ -247,7 +170,7 @@ export default class Search extends Component {
 	}
 
 	onChange(event) {	
-		this.setState({nome: toPrettyCase(event.target.value), LastEvaluatedKey: null, items: []});
+		this.setState({nome: toPrettyCase(event.target.value), items: []});
 	}
 
 	errorMessages= {
@@ -258,7 +181,7 @@ export default class Search extends Component {
 		const items = [];
 		const context = this;
 		this.state.items.forEach(function(v, k, a) {
-			items.push(<Item key={uuid.v4()} id={v.id} nome={v.nome} onClose={context.onClose.bind(context)} onSave={context.onSave.bind(context)} onDelete={context.onDelete.bind(context)} config={context.props.config} />)
+			items.push(<Item key={uuid.v4()} id={v._id} nome={v.nome} onClose={context.onClose.bind(context)} onSave={context.onSave.bind(context)} onDelete={context.onDelete.bind(context)} config={context.props.config} />)
 		})
 		let { 
     		wordsError, 
@@ -276,22 +199,12 @@ export default class Search extends Component {
 					{...this.props} 
 				>
 
-			    	<AppBar title={'Cadastro de Funcionário'} >
-				    	{/*<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}}>
-							<FloatingActionButton onTouchTap={this.onSave.bind(this)} >
-					      		<IconDelete />
-					    	</FloatingActionButton>
-					    </div>*/}
+			    	<AppBar title={'Busca de Funcionário'} >
 				    	<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}}>
 							<FloatingActionButton onTouchTap={this.onOpen.bind(this)} >
 					      		<IconAdd />
 					    	</FloatingActionButton>
 					    </div>
-				    	{/*<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}} >
-							<FloatingActionButton onTouchTap={this.onSave.bind(this)} disabled={!this.state.canSubmit} >
-					      		<IconSave />
-					    	</FloatingActionButton>
-					    </div>*/}
 					    <div style={{top: 35, position: 'relative', zIndex: 1200}}>
 							<FloatingActionButton onTouchTap={this.onDone.bind(this)} >
 					      		<IconExit />
@@ -311,6 +224,7 @@ export default class Search extends Component {
 					    <div style={{display: 'inline-block', marginTop: 50, width: '100%'}}>
 					    	<FormsyText 
 								name="nome"
+								ref="nome"
 								validations="isWords"
 								validationError={wordsError}
 								required

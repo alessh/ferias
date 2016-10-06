@@ -12,13 +12,11 @@ export default class PostList extends Component {
 			width: '100%'
 		}
 
-		var context = this;
-
 		var items = this.props.items.map(function(e) {
 			return(
-				<PostIt key={context.props.key || uuid.v4()} {...e} onClick={context.props.onClick} />
+				<PostIt key={this.props.key || uuid.v4()} {...e} onClick={this.props.onClick} />
 			);
-		});
+		}.bind(this));
 
 		return(
 			<div style={style}>

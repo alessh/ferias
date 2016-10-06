@@ -20,7 +20,6 @@ export default class PostIt extends Component {
 			'MozTransform': 'rotate(' + degre + 'deg)',
 			'OTransform': 'rotate(' + degre + 'deg)',
 			'MsTransform': 'rotate(' + degre + 'deg)',
-			'transform': 'rotate(' + degre + 'deg)',
 			'transform': 'rotate(' + degre + 'deg)'
 		}
 
@@ -31,6 +30,7 @@ export default class PostIt extends Component {
 					<blockquote className={"note " + this.props.color} style={style} >
 						<span>{this.props.title || '?'}</span>
 						<cite className="author">{this.props.note || '?'}</cite>
+						<span className="cite">{this.props.cite || ''}</span>
 					</blockquote>
 				</div>
 			</a>

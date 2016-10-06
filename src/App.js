@@ -11,24 +11,24 @@ import { AppBar, LinearProgress, FloatingActionButton, Chip } from 'material-ui'
 import './App.css';
 import Calendar from './Calendar/Calendar';
 import PostList from './PostIt/PostList';
+import List from './Funcionario/List';
 import Ferias from './Ferias/EditForm';
 import Empresa from './Empresa/CreateForm';
-import Historico from './Historico/CreateForm';
+import Historico from './Historico/Lancamento';
 import Funcionario from './Funcionario/SearchForm';
-
-import Today from './Calendar/Today';
 
 // icons
 import IconHistorico from 'material-ui/svg-icons/notification/event-note';
 import IconFuncionario from 'material-ui/svg-icons/social/person-add';
 //import IconEmpresa from 'material-ui/svg-icons/social/location-city';
-import IconFerias from 'material-ui/svg-icons/places/beach-access';
+//import IconFerias from 'material-ui/svg-icons/places/beach-access';
 
 import axios from 'axios';
 import moment from 'moment';
 import uuid from 'node-uuid';
+import { noop, orderBy } from 'lodash';
 
-import postList from './PostIt/fakeList.json';
+//import postIts from './PostIt/fakeList.json';
 
 // Needed for onTouchTap
 // http://stackoverflow.com/a/34015469/988941
@@ -77,85 +77,71 @@ class App extends Component {
 	}
 
 	componentDidMount() {
-		this.setState({progress: true}, this.onLoad());
+		this.onLoad();
 	}
-
-	/*onLoad() {
-		this.setState({progress: true}, this.load());
-	}*/
 
 	onLoad() {
-		var _this = this;
+		this.setState({progress: true});
+
 	    this.serverRequest = 
 	      axios
-	        .post("http://sistema/api/rh/ferias/list", {
-	        	page: 1,
-	        	per_page: 100
-	        })
+	        .get("http://sistema/api/v2/rh/funcionarios")
 	        .then(function(result) {   
 
-	        	var items = [];
+	        	if (result.data instanceof Array && result.data.length > 0) {
+					// acrescenta o nome do funcionário em cada período de férias
+					var items = result.data.map(function(val, i) {
 
-	        	/*for(var i = 0; i < categories.length; i++){
-    
-					items = items.concat($.map(categories[i].items,function(elem){
-				        return {value:elem.itemId, label:elem.name};
-				    }));
-				}*/
+						let desconto = val.historico ? val.historico.reduce( (total, historico) => total + historico.dias, 0 ) : 0;
 
-				//var items = result.data.map(funcionario => funcionario.ferias.map(element => element));
+						let inicial = moment.utc(new Date(val.inicial.substr(0, 10))).clone().add(1, 'year');
 
+						let ferias = [];
 
-				var items = result.data.map(function(val) {
-					val.ferias.forEach(function(e, i, a) {
-						e.nome = val.nome;
-					})
-				  return val.ferias;
-				}).reduce(function(pre, cur) {
-				   return pre.concat(cur);
-				}).map(function(e,i) {
-				  return e;
-				});
+					    while(inicial.diff(moment(new Date()), 'days') < 0) {
+					    	var final = inicial.clone().add(1, 'year').subtract(1, 'day');
 
-	        	var addAndSort2 = function(arr, val) {
-				    arr.push(val);
-				    var i = arr.length - 1;
-				    var item = moment(arr[i].aquisicao_inicial)
-		            try {
-					    while (i > 0 && item.diff(moment(arr[i-1].aquisicao_inicial)) < 0) {
-					        arr[i] = arr[i-1];
-					        i -= 1;
+					    	if (desconto < 30) {
+								ferias.push({  
+						        	_id: uuid.v4(),
+						        	type: 'Ferias',
+						        	nome: val.nome,
+						        	inicial: inicial.clone(),
+						        	final: final.clone(),
+						        	dias: 30 - desconto
+					            });	
+					            desconto = 0;
+					    	} else {
+					    		desconto -= 30;	
+					    	}
+					    	
+				            inicial.add(1, 'year');    	
 					    }
-				    } catch(err) {
-				    	console.log(err);
-				    }
-				    arr[i] = val;
-				    return arr;
-				}
+					    result.data[i].ferias = ferias;
+					  return ferias;
+					}).reduce(function(pre, cur) {
+					   return pre.concat(cur);
+					}).map(function(e,i) {
+					  return e;
+					});
 
-				var orderItems = [];
+					var orderedItems = [];
 
-	        	result.data.forEach(function(v, k, a) {
-					orderItems = addAndSort2(items, v);	
-				});
+					orderedItems = orderBy(items, ['inicial'], ['asc']);
 
-	          	_this.setState({
-	            	items: orderItems
-	          	});
-	        })
+		          	this.setState({list: result.data, items: orderedItems, progress: false});
+		        } else {
+		        	this.setState({progress: false});
+		        }
+	        }.bind(this))
 	        .catch(function(err) {
 	        	alert(err);
-	        })
-	}
-
-	componentWillUnmount() {
-		this.serverRequest.abort();
+	        	this.setState({progress: false})
+	        }.bind(this))
 	}
 
 	onEdit(v) {
-		//alert('Edit: ' + v.id + ', ' + v.note);
-
-		this.setState({form: <Ferias id={v.id} onClose={this.onClose.bind(this)} config={this.props.config} />});
+		this.setState({form: <List list={this.state.list} onClose={this.onClose.bind(this)} />});
 	}
 
 	onOpen(form) {
@@ -168,22 +154,22 @@ class App extends Component {
 	}
 
 	onClose(form) {
-		this.setState({open: { funcionario: false, ferias: false, empresa: false, historico: false}}, this.onLoad());
+		this.setState({form: null, open: { funcionario: false, ferias: false, empresa: false, historico: false}}, this.onLoad());
 	}
 
 	onToggle(event, value) {
 		this.setState({filter: false, filtered: null})
 	}
 
-	onFilter(day) {
-		var filter = []
-		var dt = this.state.date.clone().date(day);
-		this.state.items.forEach(function(v, k, a) {
-			if (moment.utc(v.inicial).isSame(dt, 'day')) {
-				filter.push(v);
-			}
-		})
-		this.setState({filter: true, date: this.state.date.date(day), filtered: filter});
+	onFilter(dt) {
+		var filter = this.state.items.filter(
+			(k, y) => 
+			k.inicial.clone().add(12, 'months').isSame(dt, 'day') ||
+			k.inicial.clone().add(11, 'months').isSame(dt, 'day') ||
+            k.inicial.isSame(dt, 'day')
+        )
+
+		this.setState({filter: true, date: dt, filtered: filter});
 	}
 
 	onNext(event) {
@@ -214,6 +200,7 @@ class App extends Component {
 		}
 		const postit = {
 			display: 'inline-block',
+			marginTop: '40px',
 			width: '50%'
 		}
 		const progress = {
@@ -222,7 +209,7 @@ class App extends Component {
 		}
 
 		var toPrettyCase = function(str) {
-		    return str.replace(/\w\S*/g, function(txt){
+		    return str ? str.replace(/\w\S*/g, function(txt){
 		    	switch(txt.toLowerCase()) {
 		    		case 'da':
 		    		case 'do':
@@ -234,17 +221,13 @@ class App extends Component {
 		    		default:
 		    			return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
 		    	}
-		    });
+		    }) : '';
 		}
 
-		const postIts = postList.map(function(p) {
-			p.note = toPrettyCase(p.note);
-
-			return p;
-		})
-		/*const postList = this.state.items.map(function(v) {
-			var today = moment.utc();
-			var date = moment.utc(v.aquisicao_inicial);
+		let items = this.state.filtered || this.state.items;
+		const postIts = items.map(function(v) {
+			var today = moment(new Date());
+			var date = moment(v.inicial);
 			var color = '';
 
 			if (date.clone().add(12, 'months').diff(today, 'days') <= 0) {
@@ -260,26 +243,15 @@ class App extends Component {
 				id: uuid.v4(),
 				title: date.format('DD/MM/YYYY'),
     			note: toPrettyCase(v.nome),
+    			cite: v.dias + (v.dias > 1 ? ' dias' : 'dia'),
     			color: color
     		}
-		})*/
+		})
 
 		return (
 			<MuiThemeProvider muiTheme={getMuiTheme(Theme)} >
 				<div>
 					<AppBar title="Controle de Férias" iconClassNameRight="muidocs-icon-navigation-expand-more" >
-
-						<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}}>
-							<FloatingActionButton onTouchTap={this.onOpen.bind(this, 'ferias')} >
-					      		<IconFerias />
-					    	</FloatingActionButton>
-					    </div>
-
-						{/*<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}}>
-							<FloatingActionButton onTouchTap={this.onOpen.bind(this, 'empresa')} >
-					      		<IconEmpresa />
-					    	</FloatingActionButton>
-					    </div>*/}
 
 						<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}}>
 							<FloatingActionButton onTouchTap={this.onOpen.bind(this, 'funcionario')} >
@@ -295,42 +267,52 @@ class App extends Component {
 
 					</AppBar>
 
-					{this.state.form}
+					{this.state.progress ? (<LinearProgress mode="indeterminate" style={progress} />) : noop() }
 
-				    {this.state.open.ferias ? (<Ferias onClose={this.onClose.bind(this)} />) : (null) }
+				    {this.state.open.ferias ? (<Ferias onClose={this.onClose.bind(this)} />) : noop() }
 
-				    {this.state.open.empresa ? (<Empresa onClose={this.onClose.bind(this)} />) : (null) }
+				    {this.state.open.empresa ? (<Empresa onClose={this.onClose.bind(this)} />) : noop() }
 
-				    {this.state.open.funcionario ? (<Funcionario onClose={this.onClose.bind(this)} />) : (null) }
+				    {this.state.open.funcionario ? (<Funcionario onClose={this.onClose.bind(this)} />) : noop() }
 
-				    {this.state.open.historico ? (<Historico onClose={this.onClose.bind(this)} />) : (null) }
+					{this.state.form ? this.state.form : this.state.open.historico ? 
 
-					{this.state.progress ? (<LinearProgress mode="indeterminate" style={progress} />) : ('') }
+						(<Historico onClose={this.onClose.bind(this)} />) :
 
-					<Today date={dt1.clone()} today={true} onNext={this.onNext.bind(this)} onPrev={this.onPrev.bind(this)} />
+						(	
+							<div style={{marginTop: '30px'}}>
+								<div className='container' style={style}>
+									<Calendar 
+										items={this.state.items} 
+										filter={this.state.filtered} 
+										date={dt1.clone()} 
+										onFilter={this.onFilter.bind(this)} 
+										onNext={this.onNext.bind(this)} 
+										onPrev={this.onPrev.bind(this)} 
+									/>
+								</div>
+								
+								<div style={postit}>
+									
+									{this.state.filter ? 
+										(<div style={style.wrapper}>
+								      	<Chip
+								          onRequestDelete={this.onToggle.bind(this)}
+								          onTouchTap={this.onToggle.bind(this)}
+								          style={style.chip}
+								        >
+								          {this.state.filter ? 'Filtro ativo ' + this.state.date.format('DD MMM YYYY') : ''}
+								        </Chip></div>
+								      	) : null
+								      	
+								    }
 
-					<div className='container' style={style}>
-						<Calendar items={this.state.items} filter={this.state.filtered} date={dt1.clone()} onFilter={this.onFilter.bind(this)} onNext={this.onNext.bind(this)} onPrev={this.onPrev.bind(this)} />
-					</div>
-					
-					<div style={postit}>
-						
-						{this.state.filter ? 
-							(<div style={style.wrapper}>
-					      	<Chip
-					          onRequestDelete={this.onToggle.bind(this)}
-					          onTouchTap={this.onToggle.bind(this)}
-					          style={style.chip}
-					        >
-					          {this.state.filter ? 'Filtro ativo ' + this.state.date.format('DD MMM YYYY') : ''}
-					        </Chip></div>
-					      	) : null
-					      	
-					    }
+									{postIts.length > 0 ? (<PostList items={postIts} onClick={this.onEdit.bind(this)} />) : noop()}
 
-						<PostList items={this.state.filtered || postIts } onClick={this.onEdit.bind(this)} />
-
-					</div>
+								</div>
+							</div>
+						)
+					}
 
 				</div>
 	        </MuiThemeProvider>		

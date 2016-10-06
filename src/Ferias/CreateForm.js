@@ -10,27 +10,18 @@ import {
 	AppBar, 
 	LinearProgress, 
 	FloatingActionButton, 
-	//TextField, 
-	//SelectField, 
-	//RaisedButton, 
 	MenuItem  
 } from 'material-ui';
 
-//import IconDelete from 'material-ui/svg-icons/action/delete';
-//import IconAdd from 'material-ui/svg-icons/content/add';
 import IconSearch from 'material-ui/svg-icons/action/search';
 import IconSave from 'material-ui/svg-icons/action/done';
 import IconExit from 'material-ui/svg-icons/navigation/close';
 
 import Formsy from 'formsy-react';
 import { 
-	//FormsyCheckbox, 
 	FormsyDate, 
-	//FormsyRadio, 
-	//FormsyRadioGroup,
     FormsySelect, 
     FormsyText, 
-    //FormsyTime, 
     FormsyToggle 
 } from 'formsy-material-ui/lib';
 
@@ -45,7 +36,6 @@ export default class Ferias extends Component {
 		}
 
 		this.onStartDateChange = this.onStartDateChange.bind(this);
-		//this.onEndDateChange = this.onEndDateChange.bind(this);
 	    this.onSave = this.onSave.bind(this);
 	    this.onClose = this.onClose.bind(this);
 	    this.enableButton = this.enableButton.bind(this);
@@ -63,74 +53,6 @@ export default class Ferias extends Component {
 
 	onLoad() {
 
-		console.log('Carregando Funcionarios...');
-
-		this.setState({progress: true});
-
-		this.params = {
-	        TableName: this.props.config.table,
-	        IndexName: 'type-id-index',
-	        KeyConditionExpression: "#pk = :pk",   
-	        ExpressionAttributeNames: {
-	        	"#pk": "type"
-	        },
-	        ExpressionAttributeValues: { 
-	        	":pk": 'Funcionario'
-	        },
-	        Projection: 'id, nome',
-	        ExclusiveStartKey: this.state.LastEvaluatedKey || null,
-	        Limit: 10
-	    }
-
-	    this.funcionarios = [];
-
-		var result = function(err, data) {
-			const context = this;
-
-	        if (err) {
-	            console.log("Unable to query for Form Definition. Error:", JSON.stringify(err, null, 2));
-	        } else {
-	            //console.log("Query for Form Definition succeeded.");
-	            
-	            if (data.Count > 0) {
-	              	console.log('Found records: ' + data.Count); 
-
-	              	data.Items.forEach(function(v, k, a) {
-
-						var addAndSort = function(arr, val) {
-						    arr.push(val);
-						    var i = arr.length - 1;
-						    var item = arr[i].nome
-				            try {
-							    while (i > 0 && item <= arr[i-1].nome) {
-							        arr[i] = arr[i-1];
-							        i -= 1;
-							    }
-						    } catch(err) {
-						    	console.log(err);
-						    }
-						    arr[i] = val;
-						    return arr;
-						}
-
-						context.funcionarios = addAndSort(context.funcionarios, v);	
-					})
-
-	            }
-	            if (data.LastEvaluatedKey) {
-	              	context.params.ExclusiveStartKey = data.LastEvaluatedKey;
-	              	context.dynamodb.query(context.params, result.bind(context))
-	            } else {
-	            	this.setState({funcionarios: context.funcionarios, progress: false});
-	            }
-	        }
-
-	    }
-
-		this.dynamodb = new aws.DynamoDB.DocumentClient();    
-
-	    this.dynamodb.query(this.params, result.bind(this));
-		
 	}
 
 	onClose() {
@@ -142,12 +64,6 @@ export default class Ferias extends Component {
 		var final = inicial.add(1, 'year').subtract(1, 'day')
 		this.refs.form.inputs[2].setState({value: final.toDate()});
 	}
-
-	/*onEndDateChange(n, date) {
-		var inicial = moment.utc(this.refs.form.inputs[1].getValue());
-		var final = moment.utc(date);
-		this.refs.form.inputs[4].setState({value: final.diff(inicial, 'days')});
-	}*/
 
 	onSave(callback) {	
 		this.refs.form.submit();
@@ -168,17 +84,9 @@ export default class Ferias extends Component {
 	}
 
 	styles= {
-		/*paperStyle: {
-			width: 300,
-			margin: 'auto',
-			padding: 20,
-		},*/
 		switchStyle: {
 			marginBottom: 16,
 		},
-		/*submitStyle: {
-			marginTop: 32,
-		},*/
 	}
 
 	enableButton() {
@@ -195,13 +103,11 @@ export default class Ferias extends Component {
 
 	submitForm(data) {
 		if (this.state.progress) {
-			console.log('request in progress.');
+			console.log('Requisição pendente, aguarde...');
 			return;
 		}
 
 	    this.setState({progress: true});
-
-		//alert(JSON.stringify(data, null, 4));
 
 		var params = {
 	        'TableName': table,
@@ -223,10 +129,8 @@ export default class Ferias extends Component {
 	    		alert('Erro ao gravar os dados: ' + err);
 	    	} else {
 	    		console.log('Create/update OK.');
-	    		//alert('Dados gravados com sucesso !');
 	    		if (context.props.onClose) context.props.onClose();
 	    	}
-	    	//this.setState({progress: false});
 	    }
 
 	    dynamodb.put(params, result.bind(this));	
@@ -238,14 +142,11 @@ export default class Ferias extends Component {
 
 	render() {
 		let { 
-			//paperStyle, 
 			switchStyle, 
-			//submitStyle 
 		} = this.styles;
     	let { 
     		wordsError, 
     		numericError, 
-    		//urlError 
     	} = this.errorMessages;
 
 		const items = [];
@@ -270,16 +171,6 @@ export default class Ferias extends Component {
 				>
 
 			    	<AppBar title={'Controle de Férias'} >
-				    	{/*<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}}>
-							<FloatingActionButton onTouchTap={this.onSave.bind(this)} >
-					      		<IconDelete />
-					    	</FloatingActionButton>
-					    </div>
-				    	<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}}>
-							<FloatingActionButton onTouchTap={this.onSave.bind(this)} >
-					      		<IconAdd />
-					    	</FloatingActionButton>
-					    </div>*/}
 				    	<div style={{marginRight: 20, top: 35, position: 'relative', zIndex: 1200}} >
 							<FloatingActionButton onTouchTap={this.onSave.bind(this)} disabled={!this.state.canSubmit} >
 					      		<IconSave />
@@ -301,28 +192,6 @@ export default class Ferias extends Component {
 			            onInvalidSubmit={this.notifyFormError}
 			            ref='form'
 			          >
-			          	{/*<FormsySelect
-			              name="empresa"
-			              required
-			              floatingLabelText="Empresa"
-			              value={this.state.empresa}
-			              fullWidth={true}
-			            >
-			              <MenuItem value={'Altamira'} primaryText="Altamira" />
-			              <MenuItem value={'Tecnequip'} primaryText="Tecnequip" />
-			              <MenuItem value={'Proalta'} primaryText="Proalta" />
-			            </FormsySelect>
-			          	<FormsyText
-			              name="nome"
-			              validations="isWords"
-			              validationError={wordsError}
-			              required
-			              readOnly
-			              hintText="Nome do funcionário"
-			              floatingLabelText="Nome do Funcionário"
-			              fullWidth={true} 
-			              value={this.state.funcionario ||  ? this.state.nome : ''}
-			            />  */}
 			            <FormsySelect
 			              name="funcionario"
 			              required
@@ -349,48 +218,12 @@ export default class Ferias extends Component {
 			              floatingLabelText="Data Final"
 			              value={this.state.final}
 			            />
-			            {/*<FormsyTime
-			              name="time"
-			              required
-			              floatingLabelText="Time"
-			            />
-			            <FormsyCheckbox
-			              name="agree"
-			              label="Do you agree to disagree?"
-			              style={switchStyle}
-			            />*/}
 			            <FormsyToggle
 			              name="realizado"
 			              label="Realizado"
 			              style={switchStyle}
 			              value={this.state.realizado}
 			            />
-			            {/*<FormsyRadioGroup name="shipSpeed" defaultSelected="not_light">
-			              <FormsyRadio
-			                value="light"
-			                label="prepare for light speed"
-			                style={switchStyle}
-			              />
-			              <FormsyRadio
-			                value="not_light"
-			                label="light speed too slow"
-			                style={switchStyle}
-			              />
-			              <FormsyRadio
-			                value="ludicrous"
-			                label="go to ludicrous speed"
-			                style={switchStyle}
-			                disabled={true}
-			              />
-			            </FormsyRadioGroup>
-			            <FormsyText
-			              name="name"
-			              validations="isWords"
-			              validationError={wordsError}
-			              required
-			              hintText="What is your name?"
-			              floatingLabelText="Name"
-			            />*/}
 			            <FormsyText
 			              name="dias"
 			              required
@@ -400,20 +233,6 @@ export default class Ferias extends Component {
 			              floatingLabelText="Dias de direito"
 			              value={30} 
 			            />
-			            {/*<FormsyText
-			              name="url"
-			              validations="isUrl"
-			              validationError={urlError}
-			              required
-			              hintText="http://www.example.com"
-			              floatingLabelText="URL"
-			            />
-			            <RaisedButton
-			              style={submitStyle}
-			              type="submit"
-			              label="Submit"
-			              disabled={!this.state.canSubmit}
-			            />*/}
 			        </Formsy.Form>
 
 				</Dialog>

@@ -4,32 +4,26 @@ import { FloatingActionButton } from 'material-ui';
 import IconNext from 'material-ui/svg-icons/navigation/chevron-right';
 import IconPrevious from 'material-ui/svg-icons/navigation/chevron-left';
 
-import moment from 'moment';
-
 export default class Today extends Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      date: this.props.date ? this.props.date.clone() : moment.utc()
-    }
 
     this.onPrev = this.onPrev.bind(this);
     this.onNext = this.onNext.bind(this);
   }
 
   onPrev() {
-    this.setState({date: this.state.date.subtract(1, 'month')}, this.props.onPrev ? this.props.onPrev(this.state.date.clone()) : null);
+    this.setState({date: this.props.date.subtract(1, 'month')}, this.props.onPrev ? this.props.onPrev(this.props.date) : null);
   }
 
   onNext() {
-    this.setState({date: this.state.date.add(1, 'month')}, this.props.onNext ? this.props.onNext(this.state.date.clone()) : null);
+    this.setState({date: this.props.date.add(1, 'month')}, this.props.onNext ? this.props.onNext(this.props.date) : null);
   }
 
   render() {
     
     const month = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-    const date = this.state.date;
+    const date = this.props.date;
     
     const style = {
       today: {  

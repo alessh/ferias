@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 
 import uuid from 'node-uuid';
-import moment from 'moment';
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
@@ -10,27 +9,16 @@ import {
 	AppBar, 
 	LinearProgress, 
 	FloatingActionButton, 
-	//TextField, 
-	//SelectField, 
-	//RaisedButton, 
 	MenuItem  
 } from 'material-ui';
 
-//import IconDelete from 'material-ui/svg-icons/action/delete';
-//import IconAdd from 'material-ui/svg-icons/content/add';
-//import IconSearch from 'material-ui/svg-icons/action/search';
 import IconSave from 'material-ui/svg-icons/action/done';
 import IconExit from 'material-ui/svg-icons/navigation/close';
 
 import Formsy from 'formsy-react';
 import { 
-	//FormsyCheckbox, 
 	FormsyDate, 
-	//FormsyRadio, 
-	//FormsyRadioGroup,
-    //FormsySelect, 
     FormsyText, 
-    //FormsyTime, 
     FormsyToggle 
 } from 'formsy-material-ui/lib';
 
@@ -83,8 +71,6 @@ export default class Form extends Component {
 		        })
 
 		}
-
-       	return;
 
 		/*this.funcionarios = [];
 		this.ferias = {};
@@ -162,7 +148,7 @@ export default class Form extends Component {
 
 			this.setState({progress: true});
 
-			this.params = {
+			/*this.params = {
 		        TableName: this.props.config.table,
 		        KeyConditionExpression: "#pk = :pk and #sk = :sk",   
 		        ExpressionAttributeNames: {
@@ -288,7 +274,7 @@ export default class Form extends Component {
 
 		//alert(JSON.stringify(data, null, 4));
 
-		var params = {
+		/*var params = {
 	        'TableName': this.props.config.table,
 	        'Item': {
 	        	id: this.props.id || uuid.v4(),
@@ -317,7 +303,7 @@ export default class Form extends Component {
 		
 		const dynamodb = new aws.DynamoDB.DocumentClient();    
 
-	    dynamodb.put(params, result.bind(this));	
+	    dynamodb.put(params, result.bind(this));	*/
 	}
 
 	notifyFormError(data) {

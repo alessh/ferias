@@ -4,42 +4,13 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
 import { 
 	Dialog, 
-	//AppBar, 
-	//LinearProgress, 
-	//FloatingActionButton, 
-	//TextField, 
-	//SelectField, 
-	//RaisedButton, 
-	//MenuItem,
-	//List,
-	//ListItem,
 	FlatButton
 } from 'material-ui';
 
-//import IconDelete from 'material-ui/svg-icons/action/delete';
-//import IconAdd from 'material-ui/svg-icons/content/add';
 import IconSave from 'material-ui/svg-icons/action/done';
-//import IconSearch from 'material-ui/svg-icons/action/search';
 import IconExit from 'material-ui/svg-icons/navigation/close';
 
-//import Formsy from 'formsy-react';
-import { 
-	//FormsyCheckbox, 
-	//FormsyDate, 
-	//FormsyRadio, 
-	//FormsyRadioGroup,
-    //FormsySelect, 
-    //FormsyText, 
-    //FormsyTime, 
-    //FormsyToggle 
-} from 'formsy-material-ui/lib';
-
-//import Funcionario from './Funcionario';
-//import FuncionarioItem from './FuncionarioItem';
-
-import 'aws-sdk/dist/aws-sdk';
-
-const aws = window.AWS;
+import axios from 'axios';
 
 export default class Ferias extends Component {
 	constructor(props) {
@@ -52,37 +23,27 @@ export default class Ferias extends Component {
 	    this.onDelete = this.onDelete.bind(this);
 	    this.onCancel = this.onCancel.bind(this);
 
-	    aws.config.update({accessKeyId: this.props.config.accessKeyId, secretAccessKey: this.props.config.secretAccessKey, region: this.props.config.region});
 	}
 
 	onDelete() {
 
-		console.log('Carregando Funcionarios...');
+		console.log('Buscando Funcionarios...');
 
 		this.setState({progress: true});
 
-		this.params = {
-	        TableName: this.props.config.table,
-	        Key: {
-	        	id: this.props.id,
-	        	type: this.props.type
-	        }
-	    }
+	    this.serverRequest = 
+	      axios
+	        .get("http://sistema/api/v2/rh/funcionarios", {page: 1, per_page: 10})
+	        .then(function(result) {   
 
-		var result = function(err, data) {
+	        	this.setState({progress: false}, this.props.onDelete.bind(null, this.props.id));
 
-	        if (err) {
-	            console.log("Unable to query for Form Definition. Error:", JSON.stringify(err, null, 2));
-	        } else {
-	        	console.log(this.props.type + ' excluido com sucesso !');
-	            if (this.props.onDelete) this.props.onDelete(this.props.id);
-	        }
+	        }.bind(this))
+	        .catch(function(err) {
+	        	this.setState({progress: false});
+	        	alert(err);
+	        }.bind(this))    
 
-	    }
-
-		const dynamodb = new aws.DynamoDB.DocumentClient();    
-
-	    dynamodb.delete(this.params, result.bind(this));
 	}
 
 	onCancel() {
