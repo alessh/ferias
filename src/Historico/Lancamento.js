@@ -135,7 +135,7 @@ export default class Historico extends Component {
 			    	inicio: moment.utc(context.state.inicial).toJSON().substr(0, 10),
 			    	final: moment.utc(context.state.final).toJSON().substr(0, 10),
 			    	historico: context.state.historico,
-			    	dias: context.state.dias
+			    	dias: parseInt(context.state.dias, 10)
 			    })
 
 			    context.serverRequest = 
@@ -214,7 +214,7 @@ export default class Historico extends Component {
 								disabled={
 									!this.state.historico.length || 
 									!this.state.items.find( it => it.selected ) || 
-									!Number.isNaN(parseInt(this.state.dias))
+									Number.isNaN(parseInt(this.state.dias, 10))
 								} 
 							>
 					      		<IconSave />
