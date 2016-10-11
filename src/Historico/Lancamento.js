@@ -57,8 +57,8 @@ export default class Historico extends Component {
 
 	    this.onLoad = this.onLoad.bind(this);	
 
-	    //this.onStartDateChange = this.onStartDateChange.bind(this);
-		//this.onEndDateChange = this.onEndDateChange.bind(this);
+	    this.onStartDateChange = this.onStartDateChange.bind(this);
+		this.onEndDateChange = this.onEndDateChange.bind(this);
 
 		this.onRowSelection = this.onRowSelection.bind(this);
 
@@ -97,11 +97,11 @@ export default class Historico extends Component {
 	}
 
 	onContinue() {
-		this.setState({continue: false})
+		this.setState({continue: false});
 	}
 
 	onCancel() {
-		this.setState({confirm: false})
+		this.setState({confirm: false});
 	}
 
 	onSave() {
@@ -151,10 +151,12 @@ export default class Historico extends Component {
 			        })   
 
 			}, function(err) {
-			    if( err )
-			      alert('Erro no lancamento dos descontos: ', err);
-			    
-			    context.setState({progress: false, continue: true});
+			    if( err ) {
+			      	alert('Erro no lancamento dos descontos: ', err);
+			      	context.setState({progress: false, continue: false});
+			    } else {
+			    	context.setState({progress: false, continue: true});	
+			    }
 			}
 		);			
 	}
@@ -173,33 +175,31 @@ export default class Historico extends Component {
 		});
 	}
 
-	/*onStartDateChange = (event, date) => {
+	onStartDateChange = (event, date) => {
+
 		var inicial = moment.utc(date);
 		var final = moment.utc(this.refs.endDate.state.date);
-		if (inicial.diff(final, 'days') > 0) { 
-			alert('Data inicial não pode ser maior que data final.')
-		} else {
-			this.setState({
-				inicial: date,
-				final: this.state.final,
-				dias: final.diff(inicial, 'days') + 1
-			});	
-		}
+
+		this.setState({
+			inicial: date,
+			final: this.state.final,
+			dias: final.diff(inicial, 'days') + 1
+		});	
+
 	}
 
 	onEndDateChange = (event, date) => {
+
 		var inicial = moment.utc(this.refs.startDate.state.date);
 		var final = moment.utc(date);
-		if (final.diff(inicial, 'days') < 0) { 
-			alert('Data final não pode ser menor que data inicial.')
-		} else {
-			this.setState({
-				inicial: this.state.inicial,
-				final: date,
-				dias: final.diff(inicial, 'days') + 1
-			});
-		}
-	}*/
+		
+		this.setState({
+			inicial: this.state.inicial,
+			final: date,
+			dias: final.diff(inicial, 'days') + 1
+		});
+	
+	}
 
 	render() {
 		const { stepIndex } = this.state;
@@ -209,7 +209,14 @@ export default class Historico extends Component {
 				<div>
 					<AppBar style={{marginTop: '83px', height: '2px'}} iconClassNameRight="muidocs-icon-navigation-expand-more" >
 				    	<div style={{marginRight: 20, top: -30, position: 'relative', zIndex: 1200}}>
-							<FloatingActionButton onTouchTap={this.onConfirm.bind(this)} disabled={!this.state.historico.length || !this.state.items.find( it => it.selected ) || !Number.isInteger(this.state.dias)} >
+							<FloatingActionButton 
+								onTouchTap={this.onConfirm.bind(this)} 
+								disabled={
+									!this.state.historico.length || 
+									!this.state.items.find( it => it.selected ) || 
+									!Number.isInteger(this.state.dias)
+								} 
+							>
 					      		<IconSave />
 					    	</FloatingActionButton>
 					    </div>
@@ -250,6 +257,7 @@ export default class Historico extends Component {
 						            <DatePicker 
 										id={uuid.v4()} 
 										ref="startDate"
+										onChange={this.onStartDateChange.bind(this)} 
 										value={this.state.inicial} 
 										formatDate={(e) => e.toLocaleDateString()}
 										floatingLabelText={'Período Inicial'}
@@ -261,6 +269,7 @@ export default class Historico extends Component {
 									<DatePicker 
 										id={uuid.v4()} 
 										ref="endDate"
+										onChange={this.onEndDateChange.bind(this)} 
 										value={this.state.final} 
 										formatDate={(e) => e.toLocaleDateString()} 
 										floatingLabelText={'Período Final'}
