@@ -214,7 +214,7 @@ export default class Historico extends Component {
 								disabled={
 									!this.state.historico.length || 
 									!this.state.items.find( it => it.selected ) || 
-									!Number.isInteger(this.state.dias)
+									!Number.isNaN(parseInt(this.state.dias))
 								} 
 							>
 					      		<IconSave />

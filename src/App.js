@@ -11,10 +11,10 @@ import { AppBar, LinearProgress, FloatingActionButton, Chip } from 'material-ui'
 import './App.css';
 import Calendar from './Calendar/Calendar';
 import PostList from './PostIt/PostList';
-import List from './Funcionario/List';
+import Historico from './Historico/Edit';
 import Ferias from './Ferias/EditForm';
 import Empresa from './Empresa/CreateForm';
-import Historico from './Historico/Lancamento';
+import Lancamento from './Historico/Lancamento';
 import Funcionario from './Funcionario/SearchForm';
 
 // icons
@@ -141,7 +141,8 @@ class App extends Component {
 	}
 
 	onEdit(v) {
-		this.setState({form: <List list={this.state.list} onClose={this.onClose.bind(this)} />});
+		let item= this.state.list.find( (k) => k.id === v.id);
+		this.setState({form: <Historico item={item} onClose={this.onClose.bind(this)} />});
 	}
 
 	onOpen(form) {
@@ -240,7 +241,7 @@ class App extends Component {
 
 			return {
 				key: uuid.v4(),
-				id: uuid.v4(),
+				id: v.id,
 				title: date.format('DD/MM/YYYY'),
     			note: toPrettyCase(v.nome),
     			cite: v.dias + (v.dias > 1 ? ' dias' : 'dia'),
@@ -277,7 +278,7 @@ class App extends Component {
 
 					{this.state.form ? this.state.form : this.state.open.historico ? 
 
-						(<Historico onClose={this.onClose.bind(this)} />) :
+						(<Lancamento onClose={this.onClose.bind(this)} />) :
 
 						(	
 							<div style={{marginTop: '30px'}}>

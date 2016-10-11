@@ -126,7 +126,7 @@ export default class Funcionario extends Component {
 		this.setState({search: false})
 	}
 
-	errorMessages= {
+	errorMessages = {
 		wordsError: "Use somente letras",
 		numericError: "Use somente números",
 		urlError: "Please provide a valid URL",
@@ -183,9 +183,7 @@ export default class Funcionario extends Component {
 	      axios
 	        .post("http://sistema/api/v2/rh/funcionario", this.funcionario)
 	        .then(function(result) {   
-
 	        	this.setState({progress: false}, this.props.onSave.bind(null, this.funcionario));
-
 	        }.bind(this))
 	        .catch(function(err) {
 	        	this.setState({progress: false})

@@ -11,8 +11,7 @@ import {
 	AppBar, 
 	LinearProgress, 
 	FloatingActionButton, 
-	List,
-	FlatButton
+	List
 } from 'material-ui';
 
 import IconAdd from 'material-ui/svg-icons/content/add';
@@ -239,6 +238,7 @@ export default class Search extends Component {
 				    		<FloatingActionButton onTouchTap={this.onSearch.bind(this)} mini={true} disabled={!(this.state.nome && this.state.nome.trim().length > 0)} >
 					      		<IconSearch />
 					    	</FloatingActionButton>
+
 						</div>
 				    </Formsy.Form>
 
@@ -251,17 +251,6 @@ export default class Search extends Component {
 	    					<CreateForm onClose={this.onClose.bind(this)} onSave={this.onSave.bind(this)} onDelete={this.onDelete.bind(this)} label={'Novo Funcionário'} />
 	    				) : (<p></p>)
 	    			}
-
-	    			{ this.state.LastEvaluatedKey && this.state.items.length > 0 ? 
-	    				(
-	    					<FlatButton
-						      label="continuar"
-						      labelPosition="before"
-						      onTouchTap={this.onSearch.bind(this)} 
-						      primary={true}
-						      icon={<IconAdd />}
-						    />
-	    				) : (<p></p>)}
 
 				</Dialog>
 
