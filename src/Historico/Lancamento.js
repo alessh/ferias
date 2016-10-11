@@ -57,8 +57,8 @@ export default class Historico extends Component {
 
 	    this.onLoad = this.onLoad.bind(this);	
 
-	    this.onStartDateChange = this.onStartDateChange.bind(this);
-		this.onEndDateChange = this.onEndDateChange.bind(this);
+	    //this.onStartDateChange = this.onStartDateChange.bind(this);
+		//this.onEndDateChange = this.onEndDateChange.bind(this);
 
 		this.onRowSelection = this.onRowSelection.bind(this);
 
@@ -114,6 +114,13 @@ export default class Historico extends Component {
 
 	    let context = this;
 
+	    var inicial = moment.utc(context.state.inicial);
+		var final = moment.utc(context.state.final);
+		if (inicial.diff(final, 'days') > 0) { 
+			alert('Data inicial não pode ser maior que data final.')
+			return;
+		}
+
 	    async.eachSeries(
 	    	this.state.items.filter( key => key.selected), 
 	    	function(funcionario, callback) {
@@ -166,7 +173,7 @@ export default class Historico extends Component {
 		});
 	}
 
-	onStartDateChange = (event, date) => {
+	/*onStartDateChange = (event, date) => {
 		var inicial = moment.utc(date);
 		var final = moment.utc(this.refs.endDate.state.date);
 		if (inicial.diff(final, 'days') > 0) { 
@@ -192,7 +199,7 @@ export default class Historico extends Component {
 				dias: final.diff(inicial, 'days') + 1
 			});
 		}
-	}
+	}*/
 
 	render() {
 		const { stepIndex } = this.state;
@@ -243,7 +250,6 @@ export default class Historico extends Component {
 						            <DatePicker 
 										id={uuid.v4()} 
 										ref="startDate"
-										onChange={this.onStartDateChange.bind(this)} 
 										value={this.state.inicial} 
 										formatDate={(e) => e.toLocaleDateString()}
 										floatingLabelText={'Período Inicial'}
@@ -255,7 +261,6 @@ export default class Historico extends Component {
 									<DatePicker 
 										id={uuid.v4()} 
 										ref="endDate"
-										onChange={this.onEndDateChange.bind(this)} 
 										value={this.state.final} 
 										formatDate={(e) => e.toLocaleDateString()} 
 										floatingLabelText={'Período Final'}
@@ -274,7 +279,6 @@ export default class Historico extends Component {
 								<TextField 
 									id={uuid.v4()} 
 									ref="dias"
-									readOnly
 									onChange={(e) => this.setState({dias: e.target.value})} 
 									value={this.state.dias} 
 									fullWidth={true} 
