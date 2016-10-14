@@ -90,7 +90,23 @@ export default class List extends Component {
 				    	
 					    	<thead key={uuid.v4()} style={{fontSize: '1.2em'}} >
 					    		<tr key={uuid.v4()} style={{borderBottom: '2px solid black', borderTop: '2px solid black'}} >
-					    			<td key={uuid.v4()} colSpan="3" rowSpan={this.props.item.ferias.length+this.props.item.historico.length+1} style={{fontSize: '2.2em'}} >{this.props.item.nome}</td>
+					    			<td key={uuid.v4()} colSpan="2" style={{fontSize: '2.2em'}} >{this.props.item.nome}</td>
+					    		</tr>
+					    		<tr>
+					    			<td key={uuid.v4()} colSpan="2">
+					    				<table key={uuid.v4()} > 
+					    					<thead key={uuid.v4()} >
+					    						<tr key={uuid.v4()} >
+					    							<td key={uuid.v4()} style={{backgroundColor: 'lightgray'}} >Data de admissão</td>
+					    							<td key={uuid.v4()} >{moment(this.props.item.inicial.substr(0, 10)).format('DD/MM/YYYY')}</td>
+					    						</tr>
+					    						<tr key={uuid.v4()} >
+					    							<td key={uuid.v4()} style={{backgroundColor: 'lightgray'}} >Empresa</td>
+					    							<td key={uuid.v4()} >{this.props.item.empresa}</td>
+					    						</tr>
+					    					</thead>
+					    				</table>
+					    			</td>
 					    		</tr>
 					    	</thead>
 
@@ -103,20 +119,23 @@ export default class List extends Component {
 
 					    					<thead key={uuid.v4()} style={{backgroundColor: 'lightgray'}} >
 					    						<tr key={uuid.v4()} >
-					    							<td key={uuid.v4()} colSpan="3" >Férias</td>
+					    							<td key={uuid.v4()} colSpan="5" >Férias</td>
 					    						</tr>
 					    						<tr key={uuid.v4()} >
-					    							<td key={uuid.v4()} colSpan="3" >Período Aquisitivo</td>
+					    							<td key={uuid.v4()} colSpan="5" >Período Aquisitivo</td>
 					    						</tr>
 					    						<tr key={uuid.v4()} >
 					    							<td key={uuid.v4()} >Inicial</td>
 					    							<td key={uuid.v4()} >Final</td>
-					    							<td key={uuid.v4()} >Dias</td>
+					    							<td key={uuid.v4()} >Adquirido Em</td>
+					    							<td key={uuid.v4()} >Limite</td>
+					    							<td key={uuid.v4()} >Saldo</td>
 					    						</tr>
 					    					</thead>
 
 					    					<tbody key={uuid.v4()} >
-								    			{this.props.item.ferias.map( (w, y) => (
+								    			{this.props.item.ferias && 
+								    				this.props.item.ferias.map( (w, y) => (
 									    			<tr key={uuid.v4()} >
 									    				<td key={uuid.v4()} >
 									    					{w.inicial.format('DD/MM/YYYY')}
@@ -125,9 +144,14 @@ export default class List extends Component {
 									    					{w.final.format('DD/MM/YYYY')}
 									    				</td>
 									    				<td key={uuid.v4()} >
-									    					{w.dias}
+									    					{w.final.clone().add(1, 'days').format('DD/MM/YYYY')}
 									    				</td>
-									    				<td key={uuid.v4()}></td>
+									    				<td key={uuid.v4()} >
+									    					{w.limite.format('DD/MM/YYYY')}
+									    				</td>
+									    				<td key={uuid.v4()} >
+									    					{w.saldo}
+									    				</td>
 									    			</tr>))
 								    			}
 								    		</tbody>
@@ -155,7 +179,8 @@ export default class List extends Component {
 					    					</thead>
 
 					    					<tbody key={uuid.v4()} >
-									    		{this.props.item.historico.map( (w, y) => (
+									    		{this.props.item.historico && 
+									    			this.props.item.historico.map( (w, y) => (
 									    			<tr key={uuid.v4()} >
 									    				<td key={uuid.v4()} >
 									    					{moment.utc(w.inicio).format('DD/MM/YYYY')}

@@ -69,11 +69,11 @@ class Body extends Component {
               {
                 let dt = d4.clone()
                 let color = this.props.items.find((k, y) => 
-                              k.inicial.clone().add(12, 'months').isSame(dt, 'day')) ? 'deadline' :
+                              k.final.clone().add(12, 'months').isSame(dt, 'day')) ? 'deadline' :
                             this.props.items.find((k, y) => 
-                              k.inicial.clone().add(11, 'months').isSame(dt, 'day')) ? 'critical' :
+                              k.final.clone().add(11, 'months').subtract(1, 'days').isSame(dt, 'day')) ? 'critical' :
                             this.props.items.find((k, y) => 
-                              k.inicial.isSame(dt, 'day')) ? 'warning' : ''; 
+                              k.final.clone().add(1, 'days').isSame(dt, 'day')) ? 'warning' : ''; 
 
                 d4.add(1, 'days');
 

@@ -43,6 +43,7 @@ export default class Historico extends Component {
     		inicial: new Date(),
     		final: new Date(),
     		historico: '',
+    		descricao: '',
     		dias: 1,
 
     	 	items: [],
@@ -284,6 +285,15 @@ export default class Historico extends Component {
 									floatingLabelText={'Histórico'}
 									floatingLabelFixed={true}
 									fullWidth={true}
+								/>	
+								<TextField 
+									id={uuid.v4()} 
+									onChange={(e) => this.setState({descricao: e.target.value})} 
+									value={this.state.descricao} 
+									floatingLabelText={'Descrição'}
+									floatingLabelFixed={true}
+									fullWidth={true}
+									multiLine={true}
 								/>		
 								<TextField 
 									id={uuid.v4()} 

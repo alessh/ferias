@@ -10,8 +10,25 @@ import IconExit from 'material-ui/svg-icons/navigation/close';
 import uuid from 'node-uuid';
 import moment from 'moment';
 
-export default class List extends Component {
+export default class Relatorio extends Component {
+	constructor(props) {
+		super(props);
+
+		this.onOpen = this.onOpen.bind(this);
+		this.onClose = this.onClose.bind(this);
+	}
+
+	onOpen() {
+		this.setState({open: true});
+	}
+
+	onClose() {
+		if (this.props.onClose) this.props.onClose();
+	}
+
 	render() {
+
+		let empresa = '';
 
 		return (
 			<MuiThemeProvider>
@@ -24,13 +41,37 @@ export default class List extends Component {
 					    </div>
 				    </AppBar>
 
-				    {this.props.list.map( (k, i) => (
-					    	
-				    <table key={uuid.v4()} style={{margin: '40px', width: '90%', borderCollapse: 'collapse'}} >
+				    {this.props.list.map( (k, i) => 
+				    	
+						<table key={uuid.v4()} style={{margin: '40px', width: '90%', borderCollapse: 'collapse'}} >
 				    	
 					    	<thead key={uuid.v4()} style={{fontSize: '1.2em'}} >
+					    				
+					    		{k.empresa !== empresa ?
+						    		<tr key={uuid.v4()} style={{borderBottom: '2px solid black', color: 'gray', borderTop: '2px solid black', textAlign: 'center'}} >
+						    			<td key={uuid.v4()} colSpan="2" style={{fontSize: '2.2em'}} >{(empresa = k.empresa)}</td>
+						    		</tr>
+						    		: null
+						    	}
+
 					    		<tr key={uuid.v4()} style={{borderBottom: '2px solid black', borderTop: '2px solid black'}} >
-					    			<td key={uuid.v4()} colSpan="3" rowSpan={k.ferias.length+k.historico.length+1} style={{fontSize: '2.2em'}} >{k.nome}</td>
+					    			<td key={uuid.v4()} colSpan="2" style={{fontSize: '2.2em'}} >{k.nome}</td>
+					    		</tr>
+					    		<tr>
+					    			<td key={uuid.v4()} colSpan="2">
+					    				<table key={uuid.v4()} > 
+					    					<thead key={uuid.v4()} >
+					    						<tr key={uuid.v4()} >
+					    							<td key={uuid.v4()} style={{backgroundColor: 'lightgray'}} >Data de admissão</td>
+					    							<td key={uuid.v4()} >{moment(k.inicial.substr(0, 10)).format('DD/MM/YYYY')}</td>
+					    						</tr>
+					    						<tr key={uuid.v4()} >
+					    							<td key={uuid.v4()} style={{backgroundColor: 'lightgray'}} >Empresa</td>
+					    							<td key={uuid.v4()} >{k.empresa}</td>
+					    						</tr>
+					    					</thead>
+					    				</table>
+					    			</td>
 					    		</tr>
 					    	</thead>
 
@@ -43,20 +84,23 @@ export default class List extends Component {
 
 					    					<thead key={uuid.v4()} style={{backgroundColor: 'lightgray'}} >
 					    						<tr key={uuid.v4()} >
-					    							<td key={uuid.v4()} colSpan="3" >Férias</td>
+					    							<td key={uuid.v4()} colSpan="5" >Férias</td>
 					    						</tr>
 					    						<tr key={uuid.v4()} >
-					    							<td key={uuid.v4()} colSpan="3" >Período Aquisitivo</td>
+					    							<td key={uuid.v4()} colSpan="5" >Período Aquisitivo</td>
 					    						</tr>
 					    						<tr key={uuid.v4()} >
 					    							<td key={uuid.v4()} >Inicial</td>
 					    							<td key={uuid.v4()} >Final</td>
-					    							<td key={uuid.v4()} >Dias</td>
+					    							<td key={uuid.v4()} >Adquirido Em</td>
+					    							<td key={uuid.v4()} >Limite</td>
+					    							<td key={uuid.v4()} >Saldo</td>
 					    						</tr>
 					    					</thead>
 
 					    					<tbody key={uuid.v4()} >
-								    			{k.ferias.map( (w, y) => (
+								    			{k.ferias && 
+								    				k.ferias.map( (w, y) => (
 									    			<tr key={uuid.v4()} >
 									    				<td key={uuid.v4()} >
 									    					{w.inicial.format('DD/MM/YYYY')}
@@ -65,9 +109,14 @@ export default class List extends Component {
 									    					{w.final.format('DD/MM/YYYY')}
 									    				</td>
 									    				<td key={uuid.v4()} >
-									    					{w.dias}
+									    					{w.final.clone().add(1, 'days').format('DD/MM/YYYY')}
 									    				</td>
-									    				<td key={uuid.v4()}></td>
+									    				<td key={uuid.v4()} >
+									    					{w.limite.format('DD/MM/YYYY')}
+									    				</td>
+									    				<td key={uuid.v4()} >
+									    					{w.saldo}
+									    				</td>
 									    			</tr>))
 								    			}
 								    		</tbody>
@@ -94,7 +143,8 @@ export default class List extends Component {
 					    					</thead>
 
 					    					<tbody key={uuid.v4()} >
-									    		{k.historico.map( (w, y) => (
+									    		{k.historico && 
+									    			k.historico.map( (w, y) => (
 									    			<tr key={uuid.v4()} >
 									    				<td key={uuid.v4()} >
 									    					{moment.utc(w.inicio).format('DD/MM/YYYY')}
@@ -117,7 +167,8 @@ export default class List extends Component {
 					    		</tr>
 					    	</tbody>
 					    </table>
-					))}
+					    	
+					)}
 					
 				</div>
 			</MuiThemeProvider>

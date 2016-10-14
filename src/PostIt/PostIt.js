@@ -6,6 +6,9 @@ export default class PostIt extends Component {
 	constructor(props) {
 		super(props);
 
+		this.state = {
+			degre: [2, -2, 2, -2, 2, -2, 2, -2, 2, 2, -2, -2, 2, -2, 2, -2][Math.floor(Math.random() * 16)]
+		}
 		this.onClick = this.onClick.bind(this);
 	}
 
@@ -14,13 +17,13 @@ export default class PostIt extends Component {
 	}
 
 	render() {
-		const degre = [2, -2, 2, -2, 2, -2, 2, -2, 2, 2, -2, -2, 2, -2, 2, -2][Math.floor(Math.random() * 16)];
+		
 		const style = {
-			'WebkitTransform': 'rotate(' + degre + 'deg)',
-			'MozTransform': 'rotate(' + degre + 'deg)',
-			'OTransform': 'rotate(' + degre + 'deg)',
-			'MsTransform': 'rotate(' + degre + 'deg)',
-			'transform': 'rotate(' + degre + 'deg)'
+			'WebkitTransform': 'rotate(' + this.state.degre + 'deg)',
+			'MozTransform': 'rotate(' + this.state.degre + 'deg)',
+			'OTransform': 'rotate(' + this.state.degre + 'deg)',
+			'MsTransform': 'rotate(' + this.state.degre + 'deg)',
+			'transform': 'rotate(' + this.state.degre + 'deg)'
 		}
 
 		return (
