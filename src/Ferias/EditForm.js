@@ -58,7 +58,7 @@ export default class Form extends Component {
 			var _this = this;
 		    this.serverRequest = 
 		      axios
-		        .get("http://sistema/api/rh/ferias/item/" + _this.props.id, {
+		        .get("http://localhost:1880/api/rh/ferias/item/" + _this.props.id, {
 		        	page: 1,
 		        	per_page: 1
 		        })

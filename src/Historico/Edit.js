@@ -59,7 +59,7 @@ export default class List extends Component {
 
 	    this.serverRequest = 
 	      axios
-	        .post("http://sistema/api/v2/rh/funcionario/", this.props.item)
+	        .post("http://localhost:1880/api/v2/rh/funcionario/", this.props.item)
 	        .then(function(result) {   
 	        	this.setState({progress: false, confirm: false});
 	        }.bind(this))

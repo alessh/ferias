@@ -76,7 +76,7 @@ export default class Funcionario extends Component {
 
 	    this.serverRequest = 
 	      axios
-	        .get("http://sistema/api/v2/rh/funcionario/" + this.props.id)
+	        .get("http://localhost:1880/api/v2/rh/funcionario/" + this.props.id)
 	        .then(function(result) { 
 	        	let newState = result.data;
 				newState.open = false;
@@ -181,7 +181,7 @@ export default class Funcionario extends Component {
 
 	    this.serverRequest = 
 	      axios
-	        .post("http://sistema/api/v2/rh/funcionario", this.funcionario)
+	        .post("http://localhost:1880/api/v2/rh/funcionario", this.funcionario)
 	        .then(function(result) {   
 	        	this.setState({progress: false}, this.props.onSave.bind(null, this.funcionario));
 	        }.bind(this))

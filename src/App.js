@@ -80,7 +80,7 @@ class App extends Component {
 
 	    this.serverRequest = 
 	      axios
-	        .get("http://sistema/api/v2/rh/funcionarios")
+	        .get("http://localhost:1880/api/v2/rh/funcionarios")
 	        .then(function(result) {   
 
 	        	if (result.data instanceof Array && result.data.length > 0) {

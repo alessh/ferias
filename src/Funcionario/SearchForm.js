@@ -117,7 +117,7 @@ export default class Search extends Component {
 
 	    this.serverRequest = 
 	      axios
-	        .post("http://sistema/api/v2/rh/funcionarios", {nome: toPrettyCase(this.refs.nome.state.value)})
+	        .post("http://localhost:1880/api/v2/rh/funcionarios", {nome: toPrettyCase(this.refs.nome.state.value)})
 	        .then(function(result) {   
 
 	        	this.setState({items: result.data, progress: false});

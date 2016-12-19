@@ -31,7 +31,7 @@ export default class Ferias extends Component {
 
 	    this.serverRequest = 
 	      axios
-	        .delete("http://sistema/api/v2/rh/funcionario/" + this.props.id, {page: 1, per_page: 10})
+	        .delete("http://localhost:1880/api/v2/rh/funcionario/" + this.props.id, {page: 1, per_page: 10})
 	        .then(function(result) {   
 
 	        	this.setState({progress: false}, this.props.onDelete.bind(null, this.props.id));

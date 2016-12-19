@@ -75,7 +75,7 @@ export default class Historico extends Component {
 
 	    this.serverRequest = 
 	      axios
-	        .get("http://sistema/api/v2/rh/funcionarios")
+	        .get("http://localhost:1880/api/v2/rh/funcionarios")
 	        .then(function(result) {   
 
 
@@ -141,7 +141,7 @@ export default class Historico extends Component {
 
 			    context.serverRequest = 
 			      axios
-			        .post("http://sistema/api/v2/rh/funcionario", omit(funcionario, 'selected'))
+			        .post("http://localhost:1880/api/v2/rh/funcionario", omit(funcionario, 'selected'))
 			        .then(function(result) {   
 
 			        	callback(null)
